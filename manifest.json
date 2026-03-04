@@ -1,0 +1,26 @@
+{
+  "name": "Hoja de Visita Domiciliar",
+  "short_name": "Visita Domiciliar",
+  "description": "Sistema de registro de visitas domiciliares – Ministerio de Salud El Salvador",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f2d52",
+  "theme_color": "#0f2d52",
+  "lang": "es-SV",
+  "icons": [
+    {
+      "src": "icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
