@@ -532,27 +532,42 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
   .form-actions{display:none!important}
   .add-row-btn,.del-row-btn{display:none!important}
 
-  /* Tarjeta del formulario */
-  .form-card{box-shadow:none!important;border:1.5px solid #bbb!important;border-radius:4px!important;max-width:100%!important}
+  /* Encabezado — centrado, sin color, solo texto negro */
+  .form-header{
+    padding:.75rem 1.1rem!important;
+    background:#fff!important;
+    border-bottom:1.5px solid #000!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    text-align:center!important;
+  }
+  .fh-emblem{display:none!important}
+  .fh-text{text-align:center!important}
+  .fh-text .fh-sup{color:#000!important;opacity:1!important;font-size:.68rem!important}
+  .fh-text h2{color:#000!important;font-size:1rem!important;margin:.15rem 0 .2rem!important}
+  .fh-text .fh-num{color:#000!important;opacity:1!important;font-size:.8rem!important}
 
-  /* Encabezado MINSAL */
-  .form-header{padding:.75rem 1.1rem!important;background:var(--navy)!important}
-  .fh-emblem{width:46px!important;height:46px!important}
-  .fh-emblem svg{width:24px!important;height:24px!important}
-  .fh-text h2{font-size:1rem!important;margin:.15rem 0 .2rem!important}
-  .fh-text .fh-sup{font-size:.68rem!important}
-  .fh-text .fh-num{font-size:.8rem!important}
+  /* Títulos de sección — sin fondo, solo borde inferior y texto negro en mayúsculas */
+  .fs-title{
+    margin:.7rem -1.1rem .5rem!important;
+    padding:.25rem 1.1rem!important;
+    font-size:.68rem!important;
+    background:#fff!important;
+    color:#000!important;
+    border:none!important;
+    border-bottom:1px solid #000!important;
+  }
 
   /* Cuerpo del formulario */
   .form-body{padding:.6rem 1.1rem .8rem!important}
 
-  /* Títulos de sección */
-  .fs-title{
-    margin:.7rem -1.1rem .5rem!important;
-    padding:.3rem 1.1rem!important;
-    font-size:.68rem!important;
-    background:var(--navy2)!important;
-  }
+  /* Tamaños de texto encabezado */
+  .fh-text h2{font-size:1rem!important;margin:.15rem 0 .2rem!important}
+  .fh-text .fh-sup{font-size:.68rem!important}
+  .fh-text .fh-num{font-size:.8rem!important}
+
+  /* Tabla signos vitales — sin color */
+  .vt th{background:#fff!important;color:#000!important;font-size:.65rem!important;padding:.35rem .3rem!important;border-bottom:1px solid #000!important}
 
   /* Grillas */
   .fg{gap:.45rem!important}
@@ -564,9 +579,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
   .f-group input{
     font-size:.88rem!important;
     padding:.28rem .5rem!important;
-    background:#f5f7fb!important;
-    border-color:#bbb!important;
+    background:#fff!important;
+    border-color:#aaa!important;
     border-radius:4px!important;
+    color:#000!important;
   }
 
   /* Textareas → usar mirror div para mostrar todo el contenido */
@@ -575,21 +591,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
     display:block!important;
     font-size:.88rem!important;
     padding:.28rem .5rem!important;
-    background:#f5f7fb!important;
-    border:1px solid #bbb!important;
+    background:#fff!important;
+    border:1px solid #aaa!important;
     border-radius:4px!important;
     white-space:pre-wrap!important;
     word-break:break-word!important;
     min-height:22px!important;
     line-height:1.55!important;
-    color:#1a2540!important;
+    color:#000!important;
     font-family:'DM Sans',sans-serif!important;
   }
 
   /* Tabla de signos vitales */
   .vitals-wrap{border:1.5px solid #bbb!important;overflow:visible!important;border-radius:4px!important}
   .vt{min-width:unset!important}
-  .vt th{font-size:.65rem!important;padding:.35rem .3rem!important;background:#e4ecf5!important}
   .vt td{padding:.12rem .2rem!important}
   .vt input{font-size:.82rem!important;padding:.15rem!important}
 
@@ -892,7 +907,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
         </div>
         <div class="fh-text">
           <div class="fh-sup">Viceministerio de Servicios de Salud · Dirección de Primer Nivel de Atención</div>
-          <h2>Informe de Visita Domiciliar</h2>
+          <h2>Formato para el Informe de Visita Domiciliar</h2>
           <div class="fh-num" id="form-correlativo">Ficha N° —</div>
         </div>
       </div>
