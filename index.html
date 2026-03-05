@@ -972,6 +972,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
           <div class="cat-dropdown-list" id="cat-dropdown-list">
             <div class="cat-dropdown-item" onclick="selectCategoria('')">— Sin categoría —</div>
             <div class="cat-dropdown-item" onclick="selectCategoria('Embarazada')">🤰 Embarazada</div>
+            <div class="cat-dropdown-item" onclick="selectCategoria('Puérpera')">🌸 Puérpera</div>
+            <div class="cat-dropdown-item" onclick="selectCategoria('Recién Nacido')">🍼 Recién Nacido</div>
             <div class="cat-dropdown-item" onclick="selectCategoria('Niño 0-12 años')">👶 Niño 0-12 años</div>
             <div class="cat-dropdown-item" onclick="selectCategoria('Adulto 20-59 años')">🧑 Adulto 20-59 años</div>
             <div class="cat-dropdown-item" onclick="selectCategoria('Adulto Mayor +60 años')">👴 Adulto Mayor +60 años</div>
@@ -979,6 +981,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
         </div>
         <!-- hidden radios para compatibilidad con el resto del código -->
         <input type="radio" name="f-categoria" value="Embarazada"           id="cat-embarazada" style="display:none"/>
+        <input type="radio" name="f-categoria" value="Puérpera"             id="cat-puerpera"   style="display:none"/>
+        <input type="radio" name="f-categoria" value="Recién Nacido"        id="cat-rn"         style="display:none"/>
         <input type="radio" name="f-categoria" value="Niño 0-12 años"       id="cat-nino"       style="display:none"/>
         <input type="radio" name="f-categoria" value="Adulto 20-59 años"    id="cat-adulto"     style="display:none"/>
         <input type="radio" name="f-categoria" value="Adulto Mayor +60 años" id="cat-mayor"     style="display:none"/>
@@ -1132,7 +1136,6 @@ const LS_KEY = 'minsal_visitas_v5';
 let records = [];
 let editingId = null;
 let vitalRowCount = 0;
-let prevScreen = 'screen-home';
 const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
 function loadRecords(){ try{ records = JSON.parse(localStorage.getItem(LS_KEY))||[]; }catch(e){ records=[]; } }
@@ -1140,14 +1143,16 @@ function saveRecords(){ localStorage.setItem(LS_KEY, JSON.stringify(records)); }
 
 /* ════════════════ SCREEN NAVIGATION ════════════════ */
 let currentScreen = 'screen-home';
+let _navHistory = []; // pila de historial
 
 function goTo(screenId, mode, extra){
+  if(screenId === currentScreen) return;
   const cur = document.getElementById(currentScreen);
   const next = document.getElementById(screenId);
-  if(!next || screenId === currentScreen) return;
+  if(!cur || !next) return;
 
-  // Remember where we came from (for back button)
-  prevScreen = currentScreen;
+  // Guardar pantalla actual en historial
+  _navHistory.push(currentScreen);
 
   cur.classList.remove('active');
   cur.classList.add('slide-out');
@@ -1156,11 +1161,9 @@ function goTo(screenId, mode, extra){
   next.classList.add('active');
   currentScreen = screenId;
 
-  // Scroll to top of new screen
   const scroller = next.querySelector('.scroller');
   if(scroller) scroller.scrollTop = 0;
 
-  // Run screen-specific init
   if(screenId === 'screen-list') renderList();
   if(screenId === 'screen-alerts') renderAlerts();
   if(screenId === 'screen-months') renderMonths();
@@ -1168,16 +1171,36 @@ function goTo(screenId, mode, extra){
     if(mode === 'new') initNewForm();
     document.getElementById('form-topbar-title').textContent = mode==='new' ? 'Nueva Visita' : 'Editar Visita';
   }
-  if(screenId === 'screen-home') updateHomeStats();
+  if(screenId === 'screen-home'){ updateHomeStats(); _navHistory = []; }
 }
 
 function goHome(){
-  goTo('screen-home');
-  prevScreen = 'screen-home';
+  const cur = document.getElementById(currentScreen);
+  const next = document.getElementById('screen-home');
+  if(cur) { cur.classList.remove('active'); cur.classList.add('slide-out'); setTimeout(()=>cur.classList.remove('slide-out'),300); }
+  if(next) next.classList.add('active');
+  currentScreen = 'screen-home';
+  _navHistory = [];
+  updateHomeStats();
 }
 
 function goBack(){
-  goTo(prevScreen);
+  if(_navHistory.length === 0){ goHome(); return; }
+  const target = _navHistory.pop();
+  const cur = document.getElementById(currentScreen);
+  const next = document.getElementById(target);
+  if(!next){ goHome(); return; }
+  cur.classList.remove('active');
+  cur.classList.add('slide-out');
+  setTimeout(()=>cur.classList.remove('slide-out'),300);
+  next.classList.add('active');
+  currentScreen = target;
+  const scroller = next.querySelector('.scroller');
+  if(scroller) scroller.scrollTop = 0;
+  if(target === 'screen-list') renderList();
+  if(target === 'screen-alerts') renderAlerts();
+  if(target === 'screen-months') renderMonths();
+  if(target === 'screen-home'){ updateHomeStats(); _navHistory = []; }
 }
 
 /* ════════════════ AUTO-GROW TEXTAREAS ════════════════ */
@@ -1207,7 +1230,7 @@ function selectCategoria(val){
   // Actualizar texto del botón
   const btn  = document.getElementById('cat-dropdown-btn');
   const text = document.getElementById('cat-selected-text');
-  const CAT_ICONS_LOCAL = {'Embarazada':'🤰 ','Niño 0-12 años':'👶 ','Adulto 20-59 años':'🧑 ','Adulto Mayor +60 años':'👴 '};
+  const CAT_ICONS_LOCAL = {'Embarazada':'🤰 ','Puérpera':'🌸 ','Recién Nacido':'🍼 ','Niño 0-12 años':'👶 ','Adulto 20-59 años':'🧑 ','Adulto Mayor +60 años':'👴 '};
   text.textContent = val ? (CAT_ICONS_LOCAL[val]||'') + val : '— Seleccionar —';
   btn.classList.toggle('has-value', !!val);
   // Resaltar item seleccionado
@@ -1304,7 +1327,7 @@ function renderMonths(){
     byMonth[mKey].cats[cat].push(r);
   });
 
-  const CAT_ORDER = ['Embarazada','Niño 0-12 años','Adulto 20-59 años','Adulto Mayor +60 años','Sin categoría'];
+  const CAT_ORDER = ['Embarazada','Puérpera','Recién Nacido','Niño 0-12 años','Adulto 20-59 años','Adulto Mayor +60 años','Sin categoría'];
 
   const monthKeys = Object.keys(byMonth).sort((a,b)=>b.localeCompare(a));
   c.innerHTML = monthKeys.map(mKey=>{
@@ -1335,7 +1358,7 @@ function renderMonths(){
 }
 
 function openMonthCatView(monthLabel, cat){
-  prevScreen = currentScreen;
+  _navHistory.push(currentScreen);
   const icon = CAT_ICONS[cat]||'📋';
   const title = `${icon} ${cat} · ${monthLabel}`;
   document.getElementById('month-view-title-bar').textContent = title;
@@ -1361,7 +1384,7 @@ function openMonthCatView(monthLabel, cat){
 }
 
 function openMonthView(label){
-  prevScreen = currentScreen;
+  _navHistory.push(currentScreen);
   document.getElementById('month-view-title-bar').textContent = label;
   document.getElementById('month-view-h2').textContent = label;
   const recs = records.filter(r=>{
@@ -1386,6 +1409,8 @@ function openMonthView(label){
 /* ════════════════ LIST SCREEN ════════════════ */
 const CAT_ICONS = {
   'Embarazada':           '🤰',
+  'Puérpera':             '🌸',
+  'Recién Nacido':        '🍼',
   'Niño 0-12 años':       '👶',
   'Adulto 20-59 años':    '🧑',
   'Adulto Mayor +60 años':'👴',
