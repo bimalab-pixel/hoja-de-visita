@@ -472,7 +472,46 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
 }
 .profile-save-btn:hover{background:#0a6a60}
 
-/* ══════════════ CLOUD SYNC ══════════════ */
+/* ══════════════ CATEGORÍA DE PACIENTE — DROPDOWN ══════════════ */
+.cat-bar{
+  background:rgba(11,122,110,.18);border-bottom:1px solid rgba(13,158,143,.35);
+  padding:.6rem 1.3rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;
+}
+.cat-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.7);flex-shrink:0;}
+.cat-dropdown-wrap{position:relative;}
+.cat-dropdown-btn{
+  display:flex;align-items:center;gap:.5rem;
+  padding:.42rem .95rem;border-radius:20px;
+  background:rgba(13,158,143,.35);border:1.5px solid var(--teal2);
+  color:#fff;font-family:inherit;font-size:.84rem;font-weight:700;
+  cursor:pointer;transition:all .2s;min-width:210px;justify-content:space-between;
+  box-shadow:0 2px 8px rgba(0,0,0,.2);
+}
+.cat-dropdown-btn:hover{background:rgba(13,158,143,.55);}
+.cat-dropdown-btn.has-value{background:var(--teal2);border-color:#0ac9b8;}
+.cat-dropdown-list{
+  display:none;position:absolute;top:calc(100% + 6px);left:0;
+  background:#0f2d52;border:1.5px solid rgba(13,158,143,.4);
+  border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.35);
+  z-index:200;min-width:220px;overflow:hidden;
+}
+.cat-dropdown-list.open{display:block;}
+.cat-dropdown-item{
+  padding:.6rem 1rem;font-size:.85rem;color:rgba(255,255,255,.8);
+  cursor:pointer;transition:background .15s;
+}
+.cat-dropdown-item:hover{background:rgba(13,158,143,.25);color:#fff;}
+.cat-dropdown-item.selected{background:rgba(13,158,143,.2);color:#fff;font-weight:700;}
+
+/* Vitals — columna nombre más ancha */
+.vt td.vt-nombre{width:180px;min-width:160px;}
+.vt td.vt-nombre input{text-align:left;width:100%;}
+
+/* Categoría en tarjeta */
+.record-cat{
+  font-size:.62rem;font-weight:700;padding:1px 7px;border-radius:10px;
+  margin-left:.4rem;vertical-align:middle;background:rgba(13,158,143,.12);color:var(--teal);
+}
 .cloud-zone{
   margin-top:.8rem;border-radius:12px;
   background:rgba(13,158,143,.12);border:1px solid rgba(13,158,143,.3);
@@ -616,6 +655,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
 
   /* ── Ocultar banner PWA en impresión ── */
   #install-banner{display:none!important}
+
+  /* ── Categoría en impresión ── */
+  .cat-bar{background:#fff!important;border-bottom:1px solid #000!important;padding:.4rem 1.1rem!important;}
+  .cat-label{color:#000!important;font-size:.7rem!important;}
+  .cat-dropdown-list{display:none!important;}
+  .cat-dropdown-btn{
+    background:#fff!important;border:1.5px solid #000!important;
+    color:#000!important;font-size:.8rem!important;font-weight:700!important;
+    min-width:unset!important;pointer-events:none!important;
+  }
 }
 /* ══════════════ BANNER INSTALACIÓN PWA ══════════════ */
 #install-banner{
@@ -907,9 +956,32 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
         </div>
         <div class="fh-text">
           <div class="fh-sup">Viceministerio de Servicios de Salud · Dirección de Primer Nivel de Atención</div>
-          <h2>Informe de Visita Domiciliar</h2>
+          <h2>Formato para el Informe de Visita Domiciliar</h2>
           <div class="fh-num" id="form-correlativo">Ficha N° —</div>
         </div>
+      </div>
+
+      <!-- Selector de categoría — dropdown -->
+      <div class="cat-bar">
+        <span class="cat-label">Tipo de paciente:</span>
+        <div class="cat-dropdown-wrap" id="cat-dropdown-wrap">
+          <button type="button" class="cat-dropdown-btn" id="cat-dropdown-btn" onclick="toggleCatDropdown()">
+            <span id="cat-selected-text">— Seleccionar —</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:14px;height:14px;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="cat-dropdown-list" id="cat-dropdown-list">
+            <div class="cat-dropdown-item" onclick="selectCategoria('')">— Sin categoría —</div>
+            <div class="cat-dropdown-item" onclick="selectCategoria('Embarazada')">🤰 Embarazada</div>
+            <div class="cat-dropdown-item" onclick="selectCategoria('Niño 0-12 años')">👶 Niño 0-12 años</div>
+            <div class="cat-dropdown-item" onclick="selectCategoria('Adulto 20-59 años')">🧑 Adulto 20-59 años</div>
+            <div class="cat-dropdown-item" onclick="selectCategoria('Adulto Mayor +60 años')">👴 Adulto Mayor +60 años</div>
+          </div>
+        </div>
+        <!-- hidden radios para compatibilidad con el resto del código -->
+        <input type="radio" name="f-categoria" value="Embarazada"           id="cat-embarazada" style="display:none"/>
+        <input type="radio" name="f-categoria" value="Niño 0-12 años"       id="cat-nino"       style="display:none"/>
+        <input type="radio" name="f-categoria" value="Adulto 20-59 años"    id="cat-adulto"     style="display:none"/>
+        <input type="radio" name="f-categoria" value="Adulto Mayor +60 años" id="cat-mayor"     style="display:none"/>
       </div>
 
       <div class="form-body">
@@ -938,7 +1010,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
           <table class="vt">
             <thead><tr>
               <th>N°</th>
-              <th style="min-width:140px;text-align:left">Nombre / Embarazada</th>
+              <th style="min-width:180px;width:180px;text-align:left">Nombre</th>
               <th>Peso kg</th><th>TA</th><th>FC</th><th>FR</th><th>T°</th><th>AU</th><th>FCF</th><th></th>
             </tr></thead>
             <tbody id="vitals-body"></tbody>
@@ -1124,7 +1196,35 @@ function syncAllMirrors(){
   });
 }
 
-/* ════════════════ HOME STATS ════════════════ */
+/* ════════════════ CATEGORÍA DROPDOWN ════════════════ */
+function toggleCatDropdown(){
+  const list = document.getElementById('cat-dropdown-list');
+  list.classList.toggle('open');
+}
+function selectCategoria(val){
+  // Marcar radio hidden
+  document.querySelectorAll('input[name="f-categoria"]').forEach(r=>r.checked = r.value===val);
+  // Actualizar texto del botón
+  const btn  = document.getElementById('cat-dropdown-btn');
+  const text = document.getElementById('cat-selected-text');
+  const CAT_ICONS_LOCAL = {'Embarazada':'🤰 ','Niño 0-12 años':'👶 ','Adulto 20-59 años':'🧑 ','Adulto Mayor +60 años':'👴 '};
+  text.textContent = val ? (CAT_ICONS_LOCAL[val]||'') + val : '— Seleccionar —';
+  btn.classList.toggle('has-value', !!val);
+  // Resaltar item seleccionado
+  document.querySelectorAll('.cat-dropdown-item').forEach(el=>{
+    el.classList.toggle('selected', el.textContent.trim().endsWith(val) && !!val);
+  });
+  // Cerrar dropdown
+  document.getElementById('cat-dropdown-list').classList.remove('open');
+}
+// Cerrar dropdown al tocar fuera
+document.addEventListener('click', e=>{
+  const wrap = document.getElementById('cat-dropdown-wrap');
+  if(wrap && !wrap.contains(e.target)) document.getElementById('cat-dropdown-list')?.classList.remove('open');
+});
+function setCatDropdown(val){
+  selectCategoria(val||'');
+}
 function updateHomeStats(){
   const now = new Date();
   const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
@@ -1187,37 +1287,77 @@ function renderAlerts(){
 
 /* ════════════════ MONTH FOLDERS SCREEN ════════════════ */
 function renderMonths(){
-  const groups = getMonthGroups();
   const c = document.getElementById('months-container');
-  const keys = Object.keys(groups).sort((a,b)=>b.localeCompare(a));
-  if(keys.length === 0){
+  if(records.length === 0){
     c.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg><h3>Sin fichas aún</h3><p>Crea tu primera visita domiciliar.</p></div>`;
     return;
   }
-  c.innerHTML = keys.map(k=>{
-    const g = groups[k];
-    const recs = [...g.records].sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'','es'));
-    return `<div style="margin-bottom:1.2rem">
+
+  // Agrupar por mes primero, luego por categoría
+  const byMonth = {};
+  records.forEach(r=>{
+    let mKey='sin-fecha', mLabel='Sin fecha';
+    if(r.fecha){ const d=new Date(r.fecha+'T12:00:00'); mKey=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; mLabel=`${MONTHS_ES[d.getMonth()]} ${d.getFullYear()}`; }
+    if(!byMonth[mKey]) byMonth[mKey]={ label:mLabel, cats:{} };
+    const cat = r.categoria || 'Sin categoría';
+    if(!byMonth[mKey].cats[cat]) byMonth[mKey].cats[cat]=[];
+    byMonth[mKey].cats[cat].push(r);
+  });
+
+  const CAT_ORDER = ['Embarazada','Niño 0-12 años','Adulto 20-59 años','Adulto Mayor +60 años','Sin categoría'];
+
+  const monthKeys = Object.keys(byMonth).sort((a,b)=>b.localeCompare(a));
+  c.innerHTML = monthKeys.map(mKey=>{
+    const month = byMonth[mKey];
+    const totalMes = Object.values(month.cats).reduce((s,a)=>s+a.length,0);
+    const catsHtml = CAT_ORDER.filter(cat=>month.cats[cat]).map(cat=>{
+      const recs = month.cats[cat];
+      const icon = CAT_ICONS[cat]||'📋';
+      return `<div style="margin-bottom:.45rem;margin-left:.5rem">
+        <div class="month-group-header" style="border-color:var(--teal2);cursor:pointer" onclick="openMonthCatView('${escAttr(month.label)}','${escAttr(cat)}')">
+          <span style="font-size:1rem">${icon}</span>
+          <span class="month-group-title" style="font-size:.88rem">${escHtml(cat)}</span>
+          <span class="month-group-count">${recs.length}</span>
+          <button class="view-month-btn" onclick="event.stopPropagation();openMonthCatView('${escAttr(month.label)}','${escAttr(cat)}')">Ver →</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    return `<div style="margin-bottom:1.6rem">
       <div class="month-group-header">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
-        <span class="month-group-title">${escHtml(g.label)}</span>
-        <span class="month-group-count">${recs.length}</span>
-        <button class="view-month-btn" onclick="openMonthView('${escAttr(g.label)}')">Ver mes →</button>
+        <span class="month-group-title">${escHtml(month.label)}</span>
+        <span class="month-group-count">${totalMes}</span>
       </div>
-      ${recs.map(r=>`
-        <div class="record-card" style="cursor:pointer" onclick="openRecord('${r.id}')">
-          <div class="record-num">${String(r.num||0).padStart(3,'0')}</div>
-          <div class="record-info">
-            <div class="record-name">${escHtml(r.nombre||'—')}</div>
-            <div class="record-meta">${r.fecha?new Date(r.fecha+'T12:00:00').toLocaleDateString('es-SV',{day:'2-digit',month:'short',year:'numeric'}):'Sin fecha'}${r.expediente?' · Exp. '+escHtml(r.expediente):''}</div>
-          </div>
-          <div class="record-actions" onclick="event.stopPropagation()">
-            <button class="icon-btn iprint" onclick="openAndPrint('${r.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
-            <button class="icon-btn del" onclick="confirmDelete('${r.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
-          </div>
-        </div>`).join('')}
+      ${catsHtml}
     </div>`;
   }).join('');
+}
+
+function openMonthCatView(monthLabel, cat){
+  prevScreen = currentScreen;
+  const icon = CAT_ICONS[cat]||'📋';
+  const title = `${icon} ${cat} · ${monthLabel}`;
+  document.getElementById('month-view-title-bar').textContent = title;
+  document.getElementById('month-view-h2').textContent = title;
+  const recs = records.filter(r=>{
+    if(!r.fecha) return false;
+    const d = new Date(r.fecha+'T12:00:00');
+    const mLabel = `${MONTHS_ES[d.getMonth()]} ${d.getFullYear()}`;
+    const rCat = r.categoria || 'Sin categoría';
+    return mLabel === monthLabel && rCat === cat;
+  }).sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'','es'));
+  document.getElementById('month-view-count').textContent = `${recs.length} ficha${recs.length!==1?'s':''}`;
+  document.getElementById('month-view-container').innerHTML = recs.length===0
+    ? `<div class="empty-state"><h3>Sin fichas</h3></div>`
+    : recs.map(r=>recordCardHTML(r)).join('');
+  const cur = document.getElementById(currentScreen);
+  cur.classList.remove('active'); cur.classList.add('slide-out');
+  setTimeout(()=>cur.classList.remove('slide-out'),300);
+  const next = document.getElementById('screen-month-view');
+  next.classList.add('active');
+  currentScreen = 'screen-month-view';
+  const sc = next.querySelector('.scroller'); if(sc) sc.scrollTop=0;
 }
 
 function openMonthView(label){
@@ -1244,12 +1384,23 @@ function openMonthView(label){
 }
 
 /* ════════════════ LIST SCREEN ════════════════ */
+const CAT_ICONS = {
+  'Embarazada':           '🤰',
+  'Niño 0-12 años':       '👶',
+  'Adulto 20-59 años':    '🧑',
+  'Adulto Mayor +60 años':'👴',
+  '':                     '📋'
+};
+
 function getMonthGroups(){
   const groups = {};
   records.forEach(r=>{
-    let key='sin-fecha', label='Sin fecha';
-    if(r.fecha){ const d=new Date(r.fecha+'T12:00:00'); key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; label=`${MONTHS_ES[d.getMonth()]} ${d.getFullYear()}`; }
-    if(!groups[key]) groups[key]={label, records:[]};
+    let monthKey='sin-fecha', monthLabel='Sin fecha';
+    if(r.fecha){ const d=new Date(r.fecha+'T12:00:00'); monthKey=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; monthLabel=`${MONTHS_ES[d.getMonth()]} ${d.getFullYear()}`; }
+    const cat = r.categoria || '';
+    const key = monthKey + '||' + cat;
+    const catLabel = cat || 'Sin categoría';
+    if(!groups[key]) groups[key]={ label: monthLabel, monthKey, cat, catLabel, records:[] };
     groups[key].records.push(r);
   });
   return groups;
@@ -1327,11 +1478,13 @@ function recordCardHTML(r){
     if(diff<0){tag=`<span class="record-tag overdue">⚠ Vencido ${Math.abs(diff)}d</span>`;cc='overdue';}
     else if(diff<=3){tag=`<span class="record-tag soon">🔔 En ${diff}d</span>`;cc='due-soon';}
   }
+  const catIcon = r.categoria ? (CAT_ICONS[r.categoria]||'') + ' ' : '';
+  const catTag = r.categoria ? `<span class="record-cat">${catIcon}${escHtml(r.categoria)}</span>` : '';
   return `<div class="record-card ${cc}">
     <div class="record-num">${String(r.num||0).padStart(3,'0')}</div>
     <div class="record-info" onclick="openRecord('${r.id}')">
       <div class="record-name">${escHtml(r.nombre||'—')}${tag}</div>
-      <div class="record-meta">${dateStr}${r.expediente?' · Exp. '+escHtml(r.expediente):''}</div>
+      <div class="record-meta">${dateStr}${r.expediente?' · Exp. '+escHtml(r.expediente):''}${catTag}</div>
     </div>
     <div class="record-actions">
       <button class="icon-btn view" title="Editar" onclick="openRecord('${r.id}')">
@@ -1353,6 +1506,8 @@ function initNewForm(){
   const now = new Date();
   ['f-ucsf','f-expediente','f-nombre','f-hora-fin','f-objetivo','f-hallazgos',
    'f-acciones','f-acuerdos','f-firma-usuario','f-firma-personal','f-seguimiento'].forEach(id=>setField(id,''));
+  document.querySelectorAll('input[name="f-categoria"]').forEach(r=>r.checked=false);
+  setCatDropdown('');
   setField('f-fecha', now.toISOString().split('T')[0]);
   setField('f-hora-inicio', now.toTimeString().slice(0,5));
   const nextNum = records.length>0 ? Math.max(...records.map(r=>r.num||0))+1 : 1;
@@ -1367,6 +1522,8 @@ function loadFormFromRecord(rec){
   editingId = rec.id;
   const map = {ucsf:'f-ucsf',fecha:'f-fecha',expediente:'f-expediente',nombre:'f-nombre',horaInicio:'f-hora-inicio',horaFin:'f-hora-fin',objetivo:'f-objetivo',hallazgos:'f-hallazgos',acciones:'f-acciones',acuerdos:'f-acuerdos',seguimiento:'f-seguimiento',firmaUsuario:'f-firma-usuario',firmaPersonal:'f-firma-personal'};
   Object.entries(map).forEach(([k,id])=>setField(id,rec[k]||''));
+  // Cargar categoría
+  setCatDropdown(rec.categoria||'');
   document.getElementById('form-correlativo').textContent = `Ficha N° ${String(rec.num||0).padStart(4,'0')}`;
   document.getElementById('btn-delete').style.display = 'flex';
   vitalRowCount = 0; document.getElementById('vitals-body').innerHTML = '';
@@ -1384,7 +1541,7 @@ function addVitalRow(data={}){
   const fields = ['nombre','peso','ta','fc','fr','temp','au','fcf'];
   const ph = ['Nombre…','—','—','—','—','—','—','—'];
   tr.innerHTML = `<td>${vitalRowCount}</td>`
-    + fields.map((f,i)=>`<td><input class="${f==='nombre'?'ni':''}" type="text" data-field="${f}" value="${escHtml(data[f]||'')}" placeholder="${ph[i]}"/></td>`).join('')
+    + fields.map((f,i)=>`<td${f==='nombre'?' class="vt-nombre"':''}><input class="${f==='nombre'?'ni':''}" type="text" data-field="${f}" value="${escHtml(data[f]||'')}" placeholder="${ph[i]}"/></td>`).join('')
     + `<td><button class="del-row-btn" onclick="removeVitalRow(this)">×</button></td>`;
   document.getElementById('vitals-body').appendChild(tr);
 }
@@ -1398,8 +1555,10 @@ function saveRecord(){
   syncAllMirrors();
   const existingRec = editingId ? records.find(r=>r.id===editingId) : null;
   const nextNum = existingRec ? existingRec.num : (records.length>0 ? Math.max(...records.map(r=>r.num||0))+1 : 1);
+  const catEl = document.querySelector('input[name="f-categoria"]:checked');
   const rec = {
     id: editingId||crypto.randomUUID(), num: nextNum,
+    categoria: catEl ? catEl.value : '',
     ucsf: getField('f-ucsf'), fecha: getField('f-fecha'), expediente: getField('f-expediente'),
     nombre, horaInicio: getField('f-hora-inicio'), horaFin: getField('f-hora-fin'),
     objetivo: getField('f-objetivo'), hallazgos: getField('f-hallazgos'),
