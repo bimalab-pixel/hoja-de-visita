@@ -1761,7 +1761,45 @@ function setBtns(disabled){
 }
 
 /* ══════════════════════════════════════
-   SUBIR A LA NUBE  (datos del usuario actual)
+   MERGE INTELIGENTE
+   Combina dos arreglos de fichas por ID.
+   Si la misma ID existe en ambos lados,
+   gana la que tenga savedAt más reciente.
+   Nunca elimina fichas — solo une.
+══════════════════════════════════════ */
+function mergeRecords(localArr, cloudArr){
+  const map = new Map();
+
+  // Primero cargamos todas las fichas de la nube
+  cloudArr.forEach(r => map.set(r.id, r));
+
+  // Luego procesamos las locales: si ya existe la ID,
+  // comparamos fechas y nos quedamos con la más reciente
+  localArr.forEach(r => {
+    if(map.has(r.id)){
+      const existing = map.get(r.id);
+      const tsLocal = r.savedAt ? new Date(r.savedAt).getTime() : 0;
+      const tsCloud = existing.savedAt ? new Date(existing.savedAt).getTime() : 0;
+      // Gana la más reciente
+      if(tsLocal > tsCloud) map.set(r.id, r);
+      // Si la nube es igual o más reciente, ya está en el map — no hacemos nada
+    } else {
+      // Ficha nueva que solo existe en local → la agregamos
+      map.set(r.id, r);
+    }
+  });
+
+  // Convertir a arreglo y ordenar por fecha de visita descendente
+  return Array.from(map.values())
+    .sort((a, b) => (b.fecha||'').localeCompare(a.fecha||''));
+}
+
+/* ══════════════════════════════════════
+   SUBIR A LA NUBE  — con merge inteligente
+   1. Descarga el estado actual de la nube
+   2. Combina con los datos locales (gana el más reciente)
+   3. Sube el resultado combinado
+   4. Actualiza también el localStorage local
 ══════════════════════════════════════ */
 window.confirmUpload = function(){
   const profile = window.loadProfile();
@@ -1789,8 +1827,8 @@ window.confirmUpload = function(){
       '⛔ Dispositivo vacío',
       [
         'Este dispositivo no tiene fichas guardadas.',
-        'No se puede subir a la nube porque sobreescribiría tus datos con nada.',
-        'Crea al menos una ficha antes de sincronizar.'
+        'Crea al menos una ficha antes de sincronizar.',
+        'Si tienes fichas en la nube, usa "Bajar" para recuperarlas primero.'
       ], null, true
     );
     return;
@@ -1798,32 +1836,55 @@ window.confirmUpload = function(){
 
   const key = userKey(profile.nombre);
   showCloudWarning(
-    `☁ Subir datos de <strong>${profile.nombre}</strong>`,
-    '⚠ Confirmar subida',
+    `☁ Subir y combinar datos de <strong>${profile.nombre}</strong>`,
+    '☁ Confirmar subida inteligente',
     [
       `Tu espacio en la nube: <strong>usuarios/${key}</strong>`,
-      `Se subirán <strong>${localRecords.length} fichas</strong> — solo las tuyas.`,
-      'Esto <strong>reemplazará</strong> tu copia anterior en la nube.',
-      'Los datos de otros usuarios <strong>no se verán afectados</strong>.',
+      `Tienes <strong>${localRecords.length} fichas locales</strong> listas para combinar.`,
+      'Se descargarán tus fichas de la nube y se <strong>combinarán</strong> con las locales.',
+      'Si una ficha existe en ambos lados, se conservará la <strong>versión más reciente</strong>.',
+      '<strong>No se eliminará ninguna ficha</strong> — solo se unen los datos.',
       '¿Continuar?'
     ],
     async () => {
       setBtns(true);
-      setCloudStatus('<span class="spin">↻</span> Subiendo…','loading');
+      setCloudStatus('<span class="spin">↻</span> Combinando y subiendo…','loading');
       try{
+        // Paso 1: leer estado actual de la nube
+        let cloudRecords = [];
+        const snap = await getDoc(doc(db, 'usuarios', key));
+        if(snap.exists()){
+          cloudRecords = snap.data().records || [];
+        }
+
+        // Paso 2: merge — gana el savedAt más reciente
+        const merged = mergeRecords(localRecords, cloudRecords);
+        const newCount    = merged.length - cloudRecords.length;
+        const updCount    = merged.filter(m => {
+          const c = cloudRecords.find(r => r.id === m.id);
+          return c && c.savedAt !== m.savedAt;
+        }).length;
+
+        // Paso 3: subir resultado combinado a Firestore
         await setDoc(doc(db, 'usuarios', key), {
-          records:    localRecords,
-          nombre:     profile.nombre,
-          cargo:      profile.cargo  || '',
-          ucsf:       profile.ucsf   || '',
-          updatedAt:  new Date().toISOString(),
-          count:      localRecords.length
+          records:   merged,
+          nombre:    profile.nombre,
+          cargo:     profile.cargo  || '',
+          ucsf:      profile.ucsf   || '',
+          updatedAt: new Date().toISOString(),
+          count:     merged.length
         });
-        setCloudStatus(
-          `✓ ${localRecords.length} fichas subidas · ${new Date().toLocaleTimeString('es-SV')}`,
-          'ok'
-        );
-        showToast(`✓ ${localRecords.length} fichas subidas a tu nube`, 'success');
+
+        // Paso 4: actualizar localStorage con el resultado combinado
+        localStorage.setItem('minsal_visitas_v5', JSON.stringify(merged));
+        window.dispatchEvent(new CustomEvent('cloud-data-loaded', { detail: merged }));
+
+        const msg = newCount > 0 || updCount > 0
+          ? `✓ ${merged.length} fichas en la nube · +${newCount} nuevas · ${updCount} actualizadas`
+          : `✓ ${merged.length} fichas sincronizadas · Sin cambios nuevos`;
+        setCloudStatus(`${msg} · ${new Date().toLocaleTimeString('es-SV')}`, 'ok');
+        showToast(`✓ Subida completada: ${merged.length} fichas combinadas`, 'success');
+
       } catch(err){
         console.error(err);
         setCloudStatus('✗ Error al subir: '+(err.message||'sin conexión'),'err');
@@ -1834,7 +1895,10 @@ window.confirmUpload = function(){
 };
 
 /* ══════════════════════════════════════
-   BAJAR DE LA NUBE  (solo los datos propios)
+   BAJAR DE LA NUBE  — con merge inteligente
+   1. Descarga el estado de la nube
+   2. Combina con los datos locales (gana el más reciente)
+   3. Guarda el resultado combinado en localStorage
 ══════════════════════════════════════ */
 window.confirmDownload = function(){
   const profile = window.loadProfile();
@@ -1857,19 +1921,20 @@ window.confirmDownload = function(){
 
   const key = userKey(profile.nombre);
   showCloudWarning(
-    `☁ Bajar datos de <strong>${profile.nombre}</strong>`,
-    '⚠ Confirmar descarga',
+    `☁ Bajar y combinar datos de <strong>${profile.nombre}</strong>`,
+    '☁ Confirmar descarga inteligente',
     [
       `Se buscará tu espacio: <strong>usuarios/${key}</strong>`,
       localRecords.length > 0
-        ? `Este dispositivo tiene <strong>${localRecords.length} fichas locales</strong> que serán reemplazadas.`
+        ? `Este dispositivo tiene <strong>${localRecords.length} fichas locales</strong> que se combinarán con la nube.`
         : 'El dispositivo está vacío — se cargarán tus datos de la nube.',
-      'Solo se bajarán <strong>tus propias fichas</strong>, no las de otros.',
+      'Si una ficha existe en ambos lados, se conservará la <strong>versión más reciente</strong>.',
+      '<strong>No se eliminará ninguna ficha</strong> — solo se unen los datos.',
       '¿Continuar?'
     ],
     async () => {
       setBtns(true);
-      setCloudStatus('<span class="spin">↻</span> Descargando…','loading');
+      setCloudStatus('<span class="spin">↻</span> Descargando y combinando…','loading');
       try{
         const snap = await getDoc(doc(db, 'usuarios', key));
         if(!snap.exists()){
@@ -1880,22 +1945,34 @@ window.confirmDownload = function(){
         }
         const data = snap.data();
         const cloudRecords = data.records || [];
-        if(cloudRecords.length === 0){
+        if(cloudRecords.length === 0 && localRecords.length === 0){
           setCloudStatus('⚠ Tu espacio en la nube está vacío.','err');
           showToast('⚠ Tu nube está vacía','error');
           setBtns(false);
           return;
         }
-        localStorage.setItem('minsal_visitas_v5', JSON.stringify(cloudRecords));
-        window.dispatchEvent(new CustomEvent('cloud-data-loaded', { detail: cloudRecords }));
+
+        // Merge — gana el savedAt más reciente
+        const merged = mergeRecords(localRecords, cloudRecords);
+        const newCount = merged.length - localRecords.length;
+        const updCount = merged.filter(m => {
+          const l = localRecords.find(r => r.id === m.id);
+          return l && l.savedAt !== m.savedAt;
+        }).length;
+
+        // Guardar resultado combinado en el dispositivo
+        localStorage.setItem('minsal_visitas_v5', JSON.stringify(merged));
+        window.dispatchEvent(new CustomEvent('cloud-data-loaded', { detail: merged }));
+
         const ts = data.updatedAt
           ? new Date(data.updatedAt).toLocaleString('es-SV')
           : '—';
-        setCloudStatus(
-          `✓ ${cloudRecords.length} fichas descargadas · Última subida: ${ts}`,
-          'ok'
-        );
-        showToast(`✓ ${cloudRecords.length} fichas descargadas de tu nube`, 'success');
+        const msg = newCount > 0 || updCount > 0
+          ? `✓ ${merged.length} fichas · +${newCount} nuevas · ${updCount} actualizadas · Nube: ${ts}`
+          : `✓ ${merged.length} fichas · Sin cambios nuevos · Nube: ${ts}`;
+        setCloudStatus(msg, 'ok');
+        showToast(`✓ Descarga completada: ${merged.length} fichas combinadas`, 'success');
+
       } catch(err){
         console.error(err);
         setCloudStatus('✗ Error al descargar: '+(err.message||'sin conexión'),'err');
