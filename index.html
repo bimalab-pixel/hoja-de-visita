@@ -188,14 +188,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
 .home-scroller::-webkit-scrollbar{width:0}
 
 /* Stats row on home */
-.home-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:.7rem;margin-bottom:1.4rem}
-.home-stat{
-  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
-  border-radius:10px;padding:.85rem 1rem;
+.home-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;
+  background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;padding:.7rem;margin-top:.9rem;
 }
-.home-stat.alert-stat{background:rgba(231,76,60,.18);border-color:rgba(231,76,60,.35);}
-.home-stat-num{font-family:'DM Serif Display',serif;font-size:1.9rem;color:#fff;line-height:1}
-.home-stat-lbl{font-size:.7rem;color:rgba(255,255,255,.6);margin-top:.2rem;font-weight:500}
+.home-stat{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:.6rem .4rem;border-radius:9px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+  text-align:center;transition:background .2s;cursor:default;
+}
+.home-stat.alert-stat{background:rgba(231,76,60,.2);border-color:rgba(231,76,60,.4);}
+.home-stat-num{font-family:'DM Serif Display',serif;font-size:1.55rem;color:#fff;line-height:1;font-weight:700}
+.home-stat-lbl{font-size:.58rem;color:rgba(255,255,255,.55);margin-top:.25rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;line-height:1.2}
 
 /* Menu buttons */
 .menu-section-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.38);margin-bottom:.55rem;margin-top:.2rem;}
@@ -546,7 +552,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
 @media(max-width:640px){
   .fg.c2,.fg.c3{grid-template-columns:1fr}
   .sig-grid{grid-template-columns:1fr}
-  .home-stats{grid-template-columns:1fr 1fr}
   .home-header{padding:1.8rem 1.2rem 1.2rem}
   .home-title{font-size:1.35rem}
   .scroller{padding:.8rem}
@@ -554,7 +559,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
   .fs-title{margin-left:-.9rem;padding-left:.9rem}
 }
 @media(max-width:380px){
-  .home-stats{grid-template-columns:1fr}
 }
 
 /* ══════════════ PRINT — tamaño legible, llena la hoja carta ══════════════ */
@@ -705,6 +709,78 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
 }
 .ib-close:hover{background:rgba(255,255,255,.18);color:#fff}
 .print-mirror{display:none}
+
+/* ══════════════ CARPETAS POR PACIENTE ══════════════ */
+.patient-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.75rem 1rem;border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background .15s;gap:.7rem;
+  background:var(--white);
+}
+.patient-row:first-child{border-radius:10px 10px 0 0}
+.patient-row:last-child{border-bottom:none;border-radius:0 0 10px 10px}
+.patient-row:only-child{border-radius:10px}
+.patient-row:hover,.patient-row:active{background:var(--light2)}
+.patient-row-name{
+  font-weight:600;font-size:.92rem;color:var(--navy);flex:1;min-width:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.patient-row-count{
+  font-size:.72rem;color:var(--muted);flex-shrink:0;
+}
+.patient-row-arrow{color:var(--border);flex-shrink:0}
+.patient-row-arrow svg{width:14px;height:14px}
+.patient-list-wrap{
+  background:var(--white);border-radius:10px;
+  box-shadow:var(--shadow-sm);border:1px solid var(--border);
+  overflow:hidden;
+}
+
+
+/* ══════════════ TEAM SCREEN ══════════════ */
+.team-user-card{
+  background:var(--white);border-radius:12px;padding:.9rem 1rem;
+  margin-bottom:.7rem;box-shadow:var(--shadow-sm);border:1px solid var(--border);
+  display:flex;align-items:center;gap:.9rem;cursor:pointer;transition:all .22s;
+}
+.team-user-card:hover{box-shadow:var(--shadow);border-color:var(--teal2);transform:translateY(-1px)}
+.team-avatar{
+  width:44px;height:44px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--navy2),var(--teal));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Serif Display',serif;font-size:1.1rem;color:#fff;font-weight:700;
+}
+.team-info{flex:1;min-width:0}
+.team-name{font-weight:700;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--navy)}
+.team-meta{font-size:.73rem;color:var(--muted);margin-top:2px}
+.team-badge{
+  background:var(--light2);color:var(--navy2);font-size:.72rem;font-weight:700;
+  padding:3px 10px;border-radius:16px;flex-shrink:0;
+}
+.team-loading{text-align:center;padding:2.5rem 1rem;color:var(--muted);font-size:.9rem}
+.team-loading .spin{font-size:1.5rem;display:block;margin-bottom:.6rem}
+.team-header-info{
+  background:var(--white);border-radius:10px;padding:.7rem 1rem;
+  margin-bottom:1rem;box-shadow:var(--shadow-sm);border-left:4px solid var(--teal2);
+  font-size:.8rem;color:var(--muted);
+}
+.team-header-info strong{color:var(--navy);display:block;font-size:.88rem;margin-bottom:.15rem}
+/* Viewer screen */
+.viewer-header{
+  background:linear-gradient(135deg,var(--navy) 0%,#1d4f96 100%);
+  padding:.9rem 1.1rem;display:flex;align-items:center;gap:.8rem;
+}
+.viewer-avatar{
+  width:42px;height:42px;border-radius:50%;flex-shrink:0;
+  background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Serif Display',serif;font-size:1rem;color:#fff;font-weight:700;
+}
+.viewer-info{flex:1;min-width:0}
+.viewer-name{font-weight:700;font-size:1rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.viewer-meta{font-size:.73rem;color:rgba(255,255,255,.6);margin-top:2px}
+.viewer-count{font-size:.72rem;background:rgba(255,255,255,.15);color:#fff;padding:3px 10px;border-radius:16px;font-weight:700;flex-shrink:0}
+
 </style>
 </head>
 <body>
@@ -748,25 +824,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       </div>
     </div>
-    <div class="home-stats">
-      <div class="home-stat">
-        <div class="home-stat-num" id="hs-total">0</div>
-        <div class="home-stat-lbl">Total fichas</div>
-      </div>
-      <div class="home-stat">
-        <div class="home-stat-num" id="hs-month">0</div>
-        <div class="home-stat-lbl">Este mes</div>
-      </div>
-      <div class="home-stat">
-        <div class="home-stat-num" id="hs-week">0</div>
-        <div class="home-stat-lbl">Esta semana</div>
-      </div>
-      <div class="home-stat alert-stat" id="hs-alert-card">
-        <div class="home-stat-num" id="hs-alerts">0</div>
-        <div class="home-stat-lbl">Seguimientos pendientes</div>
-      </div>
-    </div>
-
     <!-- Menu options -->
     <div class="menu-section-label">Acciones</div>
 
@@ -813,6 +870,47 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
       </div>
       <div class="menu-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
     </button>
+
+    <button class="menu-btn" onclick="goTo('screen-patients')">
+      <div class="menu-btn-icon teal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div class="menu-btn-text">
+        <div class="mbt">Carpetas por paciente</div>
+        <div class="mbs">Todas las visitas agrupadas por persona</div>
+      </div>
+      <div class="menu-btn-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+    </button>
+
+
+    <!-- Resumen estadístico -->
+    <div class="menu-section-label" style="margin-top:.9rem">Resumen</div>
+    <div class="home-stats">
+      <div class="home-stat">
+        <div class="home-stat-num" id="hs-total">0</div>
+        <div class="home-stat-lbl">Total</div>
+      </div>
+      <div class="home-stat">
+        <div class="home-stat-num" id="hs-today">0</div>
+        <div class="home-stat-lbl">Hoy</div>
+      </div>
+      <div class="home-stat">
+        <div class="home-stat-num" id="hs-week">0</div>
+        <div class="home-stat-lbl">Semana</div>
+      </div>
+      <div class="home-stat">
+        <div class="home-stat-num" id="hs-month">0</div>
+        <div class="home-stat-lbl">Este mes</div>
+      </div>
+      <div class="home-stat">
+        <div class="home-stat-num" id="hs-lastmonth">0</div>
+        <div class="home-stat-lbl" id="hs-lastmonth-lbl">Mes ant.</div>
+      </div>
+      <div class="home-stat alert-stat" id="hs-alert-card">
+        <div class="home-stat-num" id="hs-alerts">0</div>
+        <div class="home-stat-lbl">Alertas</div>
+      </div>
+    </div>
 
     <!-- Cloud sync -->
     <div class="cloud-zone">
@@ -911,6 +1009,48 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
     <div class="topbar-title">Carpetas por mes</div>
   </div>
   <div class="scroller" id="months-container"></div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN 5-B: CARPETAS POR PACIENTE
+════════════════════════════════════ -->
+<div class="screen" id="screen-patients">
+  <div class="topbar">
+    <button class="back-btn" onclick="goHome()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Menú
+    </button>
+    <div class="topbar-title">Carpetas por paciente</div>
+    <div class="topbar-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="patients-search" placeholder="Buscar paciente…" oninput="onPatientsSearch()"/>
+    </div>
+  </div>
+  <div class="scroller" id="patients-container"></div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN 5-C: FICHAS DE UN PACIENTE
+════════════════════════════════════ -->
+<div class="screen" id="screen-patient-detail">
+  <div class="topbar">
+    <button class="back-btn" onclick="goToPatients()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Pacientes
+    </button>
+    <div class="topbar-title" id="patient-detail-title">Paciente</div>
+    <button class="topbar-btn primary" onclick="goTo('screen-form','new')" title="Nueva visita">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nueva
+    </button>
+  </div>
+  <div class="scroller">
+    <div class="month-screen-header">
+      <h2 id="patient-detail-h2">Paciente</h2>
+      <span class="month-badge" id="patient-detail-count">0 fichas</span>
+    </div>
+    <div id="patient-detail-container"></div>
+  </div>
 </div>
 
 <!-- ════════════════════════════════════
@@ -1137,6 +1277,7 @@ let records = [];
 let editingId = null;
 let vitalRowCount = 0;
 const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+window.MONTHS_ES = MONTHS_ES;
 
 function loadRecords(){ try{ records = JSON.parse(localStorage.getItem(LS_KEY))||[]; }catch(e){ records=[]; } }
 function saveRecords(){ localStorage.setItem(LS_KEY, JSON.stringify(records)); }
@@ -1172,6 +1313,8 @@ function goTo(screenId, mode, extra){
     document.getElementById('form-topbar-title').textContent = mode==='new' ? 'Nueva Visita' : 'Editar Visita';
   }
   if(screenId === 'screen-home'){ updateHomeStats(); _navHistory = []; }
+  if(screenId === 'screen-team') loadTeam();
+  if(screenId === 'screen-patients'){ renderPatients(); }
 }
 
 function goHome(){
@@ -1200,6 +1343,17 @@ function goBack(){
   if(target === 'screen-list') renderList();
   if(target === 'screen-alerts') renderAlerts();
   if(target === 'screen-months') renderMonths();
+  if(target === 'screen-patients') renderPatients();
+  if(target === 'screen-patient-detail'){
+    const titleEl = document.getElementById('patient-detail-h2');
+    if(titleEl && titleEl.textContent){
+      const nameStr = titleEl.textContent;
+      const idx2 = (window._patientKeys||[]).findIndex(
+        k => (window._patientDisp||{})[k] === nameStr
+      );
+      if(idx2 >= 0) openPatientDetail(idx2);
+    }
+  }
   if(target === 'screen-home'){ updateHomeStats(); _navHistory = []; }
 }
 
@@ -1254,9 +1408,19 @@ function updateHomeStats(){
   const startWeek = new Date(now); startWeek.setDate(now.getDate()-now.getDay());
   const alerts = getAlerts();
 
+  const todayStr = now.toISOString().split('T')[0];
+  const lastMonthDate = new Date(now.getFullYear(), now.getMonth()-1, 1);
+  const lastMonthKey = `${lastMonthDate.getFullYear()}-${String(lastMonthDate.getMonth()+1).padStart(2,'0')}`;
+  const lastMonthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const lastMonthLabel = lastMonthNames[lastMonthDate.getMonth()] + ' ' + lastMonthDate.getFullYear();
+
   document.getElementById('hs-total').textContent = records.length;
-  document.getElementById('hs-month').textContent = records.filter(r=>(r.fecha||'').startsWith(thisMonth)).length;
+  document.getElementById('hs-today').textContent = records.filter(r=>(r.fecha||'')===todayStr).length;
   document.getElementById('hs-week').textContent = records.filter(r=>{ if(!r.fecha) return false; return new Date(r.fecha+'T12:00:00')>=startWeek; }).length;
+  document.getElementById('hs-month').textContent = records.filter(r=>(r.fecha||'').startsWith(thisMonth)).length;
+  document.getElementById('hs-lastmonth').textContent = records.filter(r=>(r.fecha||'').startsWith(lastMonthKey)).length;
+  const lmLbl = document.getElementById('hs-lastmonth-lbl');
+  if(lmLbl) lmLbl.textContent = lastMonthLabel;
   document.getElementById('hs-alerts').textContent = alerts.length;
   document.getElementById('ls-total') && (document.getElementById('ls-total').textContent = records.length);
 
@@ -1406,6 +1570,117 @@ function openMonthView(label){
   const sc = next.querySelector('.scroller'); if(sc) sc.scrollTop=0;
 }
 
+/* ════════════════ CARPETAS POR PACIENTE ════════════════ */
+
+function goToPatients(){
+  const cur  = document.getElementById(currentScreen);
+  const next = document.getElementById('screen-patients');
+  if(!cur || !next) return;
+  cur.classList.remove('active'); cur.classList.add('slide-out');
+  setTimeout(()=>cur.classList.remove('slide-out'),300);
+  next.classList.add('active');
+  currentScreen = 'screen-patients';
+  next.querySelector('.scroller').scrollTop = 0;
+  renderPatients();
+}
+
+function renderPatients(q){
+  q = (q||'').trim().toLowerCase();
+  const container = document.getElementById('patients-container');
+  if(!container) return;
+
+  if(records.length === 0){
+    container.innerHTML = `<div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <h3>Sin fichas registradas</h3>
+      <p>Crea tu primera visita domiciliar.</p>
+    </div>`;
+    return;
+  }
+
+  // Normaliza para comparar: quita tildes y pasa a minúsculas
+  function normalizeName(s){
+    return (s||'').trim()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .toLowerCase()
+      .replace(/\s+/g,' ');
+  }
+
+  // Agrupar por nombre normalizado, guardando el nombre original (primer ejemplo encontrado)
+  const groups   = {};   // clave normalizada → array de fichas
+  const dispName = {};   // clave normalizada → nombre a mostrar (el primero encontrado)
+  records.forEach(r => {
+    const raw  = (r.nombre||'Sin nombre').trim();
+    const key  = normalizeName(raw);
+    if(!groups[key]){
+      groups[key]  = [];
+      dispName[key] = raw;   // guarda el nombre original para mostrar
+    }
+    groups[key].push(r);
+  });
+
+  // Ordenar alfabéticamente por clave normalizada
+  let keys = Object.keys(groups).sort((a,b) => a.localeCompare(b,'es'));
+  if(q){
+    const qn = normalizeName(q);
+    keys = keys.filter(k => k.includes(qn));
+  }
+
+  if(keys.length === 0){
+    container.innerHTML = `<div class="empty-state"><h3>Sin resultados</h3></div>`;
+    return;
+  }
+
+  // Guardar lista en window para que onclick pueda recuperar la clave por índice
+  window._patientKeys  = keys;
+  window._patientDisp  = dispName;
+  window._patientGroups = groups;
+
+  const rows = keys.map((key, idx) => {
+    const count = groups[key].length;
+    return `<div class="patient-row" onclick="openPatientDetail(${idx})">
+      <span class="patient-row-name">${escHtml(dispName[key])}</span>
+      <span class="patient-row-count">${count} ficha${count!==1?'s':''}</span>
+      <span class="patient-row-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+    </div>`;
+  }).join('');
+
+  container.innerHTML =
+    `<div style="font-size:.72rem;color:var(--muted);margin-bottom:.6rem;padding:0 .2rem">${keys.length} paciente${keys.length!==1?'s':''}</div>
+     <div class="patient-list-wrap">${rows}</div>`;
+}
+
+function onPatientsSearch(){
+  const q = document.getElementById('patients-search').value || '';
+  renderPatients(q);
+}
+
+function openPatientDetail(idx){
+  const key   = (window._patientKeys  && window._patientKeys[idx])  || String(idx);
+  const name  = (window._patientDisp  && window._patientDisp[key])  || key;
+  const recs  = (window._patientGroups && window._patientGroups[key])
+    ? [...window._patientGroups[key]].sort((a,b) => (a.fecha||'').localeCompare(b.fecha||''))
+    : [];
+
+  document.getElementById('patient-detail-title').textContent = name;
+  document.getElementById('patient-detail-h2').textContent    = name;
+  document.getElementById('patient-detail-count').textContent = `${recs.length} ficha${recs.length!==1?'s':''}`;
+  document.getElementById('patient-detail-container').innerHTML =
+    recs.length === 0
+      ? `<div class="empty-state"><h3>Sin fichas</h3></div>`
+      : recs.map(r => recordCardHTML(r)).join('');
+
+  // Navigate to detail screen
+  const cur  = document.getElementById(currentScreen);
+  const next = document.getElementById('screen-patient-detail');
+  if(!cur || !next) return;
+  cur.classList.remove('active'); cur.classList.add('slide-out');
+  setTimeout(()=>cur.classList.remove('slide-out'),300);
+  next.classList.add('active');
+  currentScreen = 'screen-patient-detail';
+  next.querySelector('.scroller').scrollTop = 0;
+}
+
 /* ════════════════ LIST SCREEN ════════════════ */
 const CAT_ICONS = {
   'Embarazada':           '🤰',
@@ -1416,6 +1691,7 @@ const CAT_ICONS = {
   'Adulto Mayor +60 años':'👴',
   '':                     '📋'
 };
+window.CAT_ICONS = CAT_ICONS;
 
 function getMonthGroups(){
   const groups = {};
@@ -1652,6 +1928,8 @@ function showToast(msg,type=''){ clearTimeout(_tt); const e=document.querySelect
 
 /* ════════════════ UTILS ════════════════ */
 function escHtml(s){ return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+window.escHtml = escHtml;
+window.escAttr  = escAttr;
 function escAttr(s){ return(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
 
 /* ════════════════ PERFIL DE USUARIO ════════════════ */
@@ -1732,6 +2010,12 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
+
+/* Aliases para acceder a constantes del scope global desde este módulo ES6 */
+const MONTHS_ES  = window.MONTHS_ES  || ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const CAT_ICONS  = window.CAT_ICONS  || {};
+const escHtml    = window.escHtml    || (s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'));
+const escAttr    = window.escAttr    || (s => (s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"));
 
 /* ─────────────────────────────────────
    Genera la clave del documento a partir
@@ -1983,6 +2267,207 @@ window.confirmDownload = function(){
 };
 
 /* ══════════════════════════════════════
+   EQUIPO DE TRABAJO — leer todos los usuarios
+══════════════════════════════════════ */
+
+// Estado del viewer (solo lectura de otro usuario)
+let _viewerRecords = [];
+let _viewerUser    = {};
+
+window.loadTeam = async function(){
+  const container = document.getElementById('team-container');
+  if(!container) return;
+
+  container.innerHTML = `<div class="team-loading"><span class="spin" style="font-size:1.4rem;display:block;margin-bottom:.5rem">↻</span>Cargando equipo desde la nube…</div>`;
+
+  try{
+    const snap = await getDocs(collection(db, 'usuarios'));
+    if(snap.empty){
+      container.innerHTML = `<div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        <h3>Sin datos en la nube</h3>
+        <p>Ningún miembro del equipo ha subido datos aún.</p>
+      </div>`;
+      return;
+    }
+
+    const myProfile = window.loadProfile();
+    const myKey     = myProfile.nombre ? userKey(myProfile.nombre) : '__none__';
+    const users     = [];
+
+    snap.forEach(docSnap => {
+      const d = docSnap.data();
+      users.push({
+        key:       docSnap.id,
+        nombre:    d.nombre    || docSnap.id,
+        cargo:     d.cargo     || '',
+        ucsf:      d.ucsf      || '',
+        count:     d.count     || (d.records||[]).length,
+        updatedAt: d.updatedAt || null,
+        records:   d.records   || []
+      });
+    });
+
+    // Ordenar: primero el usuario propio, luego por nombre
+    users.sort((a,b)=>{
+      if(a.key === myKey) return -1;
+      if(b.key === myKey) return  1;
+      return a.nombre.localeCompare(b.nombre,'es');
+    });
+
+    const totalFichas = users.reduce((s,u)=>s+u.count,0);
+
+    let html = `<div class="team-header-info">
+      <strong>☁ Datos en la nube · ${users.length} miembro${users.length!==1?'s':''}</strong>
+      ${totalFichas} fichas registradas en total por el equipo
+    </div>`;
+
+    html += users.map(u=>{
+      const parts    = (u.nombre||'').trim().split(' ').filter(Boolean);
+      const initials = parts.length>=2 ? (parts[0][0]+parts[parts.length-1][0]).toUpperCase() : (u.nombre.slice(0,2).toUpperCase()||'?');
+      const isMine   = u.key === myKey;
+      const tsStr    = u.updatedAt ? new Date(u.updatedAt).toLocaleDateString('es-SV',{day:'2-digit',month:'short',year:'numeric'}) : 'Sin fecha';
+      const metaParts = [u.cargo, u.ucsf].filter(Boolean);
+      const meta     = metaParts.length ? metaParts.join(' · ') : 'Personal de salud';
+      return `<div class="team-user-card" onclick="openTeamUser(${JSON.stringify(JSON.stringify(u))})">
+        <div class="team-avatar" style="${isMine?'background:linear-gradient(135deg,var(--teal),var(--teal2));border:2px solid var(--teal2)':''}">${initials}</div>
+        <div class="team-info">
+          <div class="team-name">${escHtml(u.nombre)}${isMine?' <span style="font-size:.65rem;background:rgba(13,158,143,.18);color:var(--teal);padding:1px 6px;border-radius:8px;font-weight:700">Tú</span>':''}</div>
+          <div class="team-meta">${escHtml(meta)} · Actualizado: ${tsStr}</div>
+        </div>
+        <div class="team-badge">${u.count} ficha${u.count!==1?'s':''}</div>
+      </div>`;
+    }).join('');
+
+    container.innerHTML = html;
+
+  } catch(err){
+    console.error(err);
+    container.innerHTML = `<div class="empty-state">
+      <h3>Error al cargar</h3>
+      <p>${escHtml(err.message||'Verifica tu conexión a internet.')}</p>
+    </div>`;
+  }
+};
+
+window.openTeamUser = function(userJsonStr){
+  const u = JSON.parse(userJsonStr);
+  _viewerRecords = u.records || [];
+  _viewerUser    = u;
+
+  // Build header
+  const parts    = (u.nombre||'').trim().split(' ').filter(Boolean);
+  const initials = parts.length>=2 ? (parts[0][0]+parts[parts.length-1][0]).toUpperCase() : (u.nombre.slice(0,2).toUpperCase()||'?');
+  const metaParts = [u.cargo, u.ucsf].filter(Boolean);
+  const meta     = metaParts.length ? metaParts.join(' · ') : 'Personal de salud';
+
+  // Set topbar title
+  document.getElementById('viewer-topbar-title').textContent = u.nombre;
+
+  // Build scroller content with sticky profile header
+  const container = document.getElementById('viewer-container');
+  container.innerHTML = '';
+
+  // Profile header div (inside scroller)
+  const hdr = document.createElement('div');
+  hdr.className = 'viewer-header';
+  hdr.style.borderRadius = '0 0 12px 12px';
+  hdr.style.marginBottom = '.9rem';
+  hdr.innerHTML = `
+    <div class="viewer-avatar">${initials}</div>
+    <div class="viewer-info">
+      <div class="viewer-name">${escHtml(u.nombre)}</div>
+      <div class="viewer-meta">${escHtml(meta)}</div>
+    </div>
+    <div class="viewer-count">${_viewerRecords.length} ficha${_viewerRecords.length!==1?'s':''}</div>`;
+  container.appendChild(hdr);
+
+  // Search input clear + list placeholder
+  document.getElementById('viewer-search').value = '';
+  renderViewerList('');
+
+  // Navigate
+  const cur  = document.getElementById(currentScreen);
+  const next = document.getElementById('screen-viewer');
+  _navHistory.push(currentScreen);
+  cur.classList.remove('active'); cur.classList.add('slide-out');
+  setTimeout(()=>cur.classList.remove('slide-out'),300);
+  next.classList.add('active');
+  currentScreen = 'screen-viewer';
+  next.querySelector('.scroller').scrollTop = 0;
+};
+
+window.onViewerSearch = function(){
+  const q = (document.getElementById('viewer-search').value||'').trim();
+  renderViewerList(q);
+};
+
+function renderViewerList(q){
+  // The container has the header as first child — keep it, replace the rest
+  const container = document.getElementById('viewer-container');
+  // Remove all children after the first (header)
+  while(container.children.length > 1) container.removeChild(container.lastChild);
+
+  let list = [..._viewerRecords];
+  if(q){
+    const ql = q.toLowerCase();
+    list = list.filter(r=>
+      (r.nombre||'').toLowerCase().includes(ql) ||
+      (r.expediente||'').toLowerCase().includes(ql) ||
+      (r.fecha||'').includes(ql)
+    );
+  }
+  list.sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+
+  if(list.length === 0){
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.innerHTML = q
+      ? `<h3>Sin resultados</h3><p>No hay fichas que coincidan con "<em>${escHtml(q)}</em>"</p>`
+      : `<h3>Sin fichas</h3><p>Este usuario no tiene fichas registradas.</p>`;
+    container.appendChild(empty);
+    return;
+  }
+
+  // Group by month
+  const groups = {};
+  list.forEach(r=>{
+    let key='Sin fecha';
+    if(r.fecha){ const d=new Date(r.fecha+'T12:00:00'); key=`${MONTHS_ES[d.getMonth()]} ${d.getFullYear()}`; }
+    if(!groups[key]) groups[key]=[];
+    groups[key].push(r);
+  });
+
+  const MONTHS_SORT_ORDER = Object.keys(groups); // already in desc order from list sort
+  MONTHS_SORT_ORDER.forEach(key=>{
+    const groupDiv = document.createElement('div');
+    groupDiv.className = 'month-group';
+    groupDiv.innerHTML = `
+      <div class="month-group-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span class="month-group-title">${key}</span>
+        <span class="month-group-count">${groups[key].length}</span>
+      </div>
+      ${groups[key].map(r=>viewerCardHTML(r)).join('')}`;
+    container.appendChild(groupDiv);
+  });
+}
+
+function viewerCardHTML(r){
+  const dateStr = r.fecha ? new Date(r.fecha+'T12:00:00').toLocaleDateString('es-SV',{day:'2-digit',month:'short',year:'numeric'}) : 'Sin fecha';
+  const catIcon = r.categoria ? ((CAT_ICONS[r.categoria]||'')+'  ') : '';
+  const catTag  = r.categoria ? `<span class="record-cat">${catIcon}${escHtml(r.categoria)}</span>` : '';
+  return `<div class="record-card" style="cursor:default">
+    <div class="record-num">${String(r.num||0).padStart(3,'0')}</div>
+    <div class="record-info" style="cursor:default">
+      <div class="record-name">${escHtml(r.nombre||'—')}</div>
+      <div class="record-meta">${dateStr}${r.expediente?' · Exp. '+escHtml(r.expediente):''}${catTag}</div>
+      ${r.objetivo ? `<div style="font-size:.72rem;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(r.objetivo)}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════
    MODAL DE ADVERTENCIA NUBE
 ══════════════════════════════════════ */
 function showCloudWarning(title, heading, bullets, onConfirm, closeOnly=false){
@@ -2039,6 +2524,45 @@ window.addEventListener('cloud-data-loaded', function(e){
   updateHomeStats();
 });
 </script>
+
+<!-- ════════════════════════════════════
+     SCREEN 7: EQUIPO DE TRABAJO
+════════════════════════════════════ -->
+<div class="screen" id="screen-team">
+  <div class="topbar">
+    <button class="back-btn" onclick="goHome()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Menú
+    </button>
+    <div class="topbar-title">Equipo de trabajo</div>
+    <button class="topbar-btn primary" onclick="loadTeam()" title="Actualizar lista">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:14px;height:14px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+      Actualizar
+    </button>
+  </div>
+  <div class="scroller" id="team-container">
+    <div class="team-loading"><span>☁</span>Toca "Actualizar" para cargar el equipo</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN 8: FICHAS DE OTRO USUARIO
+════════════════════════════════════ -->
+<div class="screen" id="screen-viewer">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Equipo
+    </button>
+    <div class="topbar-title" id="viewer-topbar-title">Fichas</div>
+    <div class="topbar-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="viewer-search" placeholder="Buscar…" oninput="onViewerSearch()"/>
+    </div>
+  </div>
+  <!-- Profile header inserted here dynamically -->
+  <div class="scroller" id="viewer-container"></div>
+</div>
 
 </body>
 </html>
