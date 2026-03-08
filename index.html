@@ -17,7 +17,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192x192.png"/>
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512x512.png"/>
 <!-- Precargar ícono para el banner -->
-<link rel="preload" as="image" href="icons/icon-192x192.png"/>
+<link rel="preload" as="image" href="icon-192x192.png"/>
 
 <!-- ═══ SERVICE WORKER + BANNER DE INSTALACIÓN (una sola vez) ═══ -->
 <script>
@@ -1054,6 +1054,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
       <input id="patients-search" placeholder="Buscar paciente…" oninput="onPatientsSearch()"/>
     </div>
   </div>
+  <div class="sort-bar">
+    <span class="sort-bar-lbl">Ordenar:</span>
+    <button class="sort-btn active" id="pt-sort-btn-az" onclick="setPtSort('az')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="6" x2="11" y2="6"/><line x1="4" y1="12" x2="11" y2="12"/><line x1="4" y1="18" x2="13" y2="18"/><polyline points="15 15 18 18 21 15"/><line x1="18" y1="6" x2="18" y2="18"/></svg>A→Z</button>
+    <button class="sort-btn" id="pt-sort-btn-za" onclick="setPtSort('za')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="6" x2="11" y2="6"/><line x1="4" y1="12" x2="11" y2="12"/><line x1="4" y1="18" x2="13" y2="18"/><polyline points="15 9 18 6 21 9"/><line x1="18" y1="18" x2="18" y2="6"/></svg>Z→A</button>
+    <button class="sort-btn" id="pt-sort-btn-most" onclick="setPtSort('most')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Más visitas</button>
+    <button class="sort-btn" id="pt-sort-btn-recent" onclick="setPtSort('recent')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Reciente</button>
+  </div>
   <div class="scroller" id="patients-container"></div>
 </div>
 
@@ -1333,6 +1344,7 @@ let _alSort   = 'date';
 let _mvSort   = 'az';
 let _pdSort   = 'newest';
 let _vwSort   = 'newest';
+let _ptSort   = 'az';
 let _mvFilterFn = null; // stores current filter function for month-view re-sort
 
 function _applySort(arr, sortKey){
@@ -1344,7 +1356,7 @@ function _applySort(arr, sortKey){
   return a;
 }
 function _setSortBtns(prefix, active){
-  ['newest','oldest','az','za','date'].forEach(k=>{
+  ['newest','oldest','az','za','date','most','recent'].forEach(k=>{
     const el = document.getElementById(prefix+k);
     if(el) el.classList.toggle('active', k===active);
   });
@@ -1354,6 +1366,7 @@ function setAlSort(s)  { _alSort=s;   _setSortBtns('al-sort-btn-',s); renderAler
 function setMvSort(s)  { _mvSort=s;   _setSortBtns('mv-sort-btn-',s); _rerenderMvContainer(); }
 function setPdSort(s)  { _pdSort=s;   _setSortBtns('pd-sort-btn-',s); _rerenderPdContainer(); }
 function setVwSort(s)  { _vwSort=s;   _setSortBtns('vw-sort-btn-',s); const q=(document.getElementById('viewer-search')?.value||'').trim(); renderViewerList(q); }
+function setPtSort(s)  { _ptSort=s;   _setSortBtns('pt-sort-btn-',s); const q=(document.getElementById('patients-search')?.value||''); renderPatients(q); }
 
 // Store current month-view records so sort can re-render
 let _mvCurrentRecs = [];
@@ -1397,8 +1410,8 @@ function goTo(screenId, mode, extra){
   const scroller = next.querySelector('.scroller');
   if(scroller) scroller.scrollTop = 0;
 
-  if(screenId === 'screen-list') renderList();
-  if(screenId === 'screen-alerts') renderAlerts();
+  if(screenId === 'screen-list'){ _listSort='newest'; _setSortBtns('ls-sort-btn-','newest'); document.getElementById('list-search').value=''; renderList(); }
+  if(screenId === 'screen-alerts'){ _alSort='date'; _setSortBtns('al-sort-btn-','date'); renderAlerts(); }
   if(screenId === 'screen-months') renderMonths();
   if(screenId === 'screen-form'){
     if(mode === 'new') initNewForm();
@@ -1406,7 +1419,7 @@ function goTo(screenId, mode, extra){
   }
   if(screenId === 'screen-home'){ updateHomeStats(); _navHistory = []; }
   if(screenId === 'screen-team') loadTeam();
-  if(screenId === 'screen-patients'){ renderPatients(); }
+  if(screenId === 'screen-patients'){ _ptSort='az'; _setSortBtns('pt-sort-btn-','az'); renderPatients(); }
 }
 
 function goHome(){
@@ -1435,7 +1448,7 @@ function goBack(){
   if(target === 'screen-list') renderList();
   if(target === 'screen-alerts') renderAlerts();
   if(target === 'screen-months') renderMonths();
-  if(target === 'screen-patients') renderPatients();
+  if(target === 'screen-patients'){ _setSortBtns('pt-sort-btn-',_ptSort); renderPatients(); }
   if(target === 'screen-patient-detail'){
     const titleEl = document.getElementById('patient-detail-h2');
     if(titleEl && titleEl.textContent){
@@ -1673,6 +1686,7 @@ function goToPatients(){
   next.classList.add('active');
   currentScreen = 'screen-patients';
   next.querySelector('.scroller').scrollTop = 0;
+  _ptSort='az'; _setSortBtns('pt-sort-btn-','az');
   renderPatients();
 }
 
@@ -1711,8 +1725,26 @@ function renderPatients(q){
     groups[key].push(r);
   });
 
-  // Ordenar alfabéticamente por clave normalizada
-  let keys = Object.keys(groups).sort((a,b) => a.localeCompare(b,'es'));
+  // Ordenar según _ptSort
+  let keys;
+  if(_ptSort === 'az'){
+    keys = Object.keys(groups).sort((a,b) => a.localeCompare(b,'es'));
+  } else if(_ptSort === 'za'){
+    keys = Object.keys(groups).sort((a,b) => b.localeCompare(a,'es'));
+  } else if(_ptSort === 'most'){
+    // más fichas primero
+    keys = Object.keys(groups).sort((a,b) => groups[b].length - groups[a].length);
+  } else if(_ptSort === 'recent'){
+    // paciente con visita más reciente primero
+    keys = Object.keys(groups).sort((a,b) => {
+      const latestA = groups[a].map(r=>r.fecha||'').sort().reverse()[0] || '';
+      const latestB = groups[b].map(r=>r.fecha||'').sort().reverse()[0] || '';
+      return latestB.localeCompare(latestA);
+    });
+  } else {
+    keys = Object.keys(groups).sort((a,b) => a.localeCompare(b,'es'));
+  }
+
   if(q){
     const qn = normalizeName(q);
     keys = keys.filter(k => k.includes(qn));
@@ -1835,30 +1867,48 @@ function renderList(q){
     return;
   }
 
-  // Group by month
-  const groups = {};
+  // Group by month using a Map keyed by YYYY-MM for stable chronological order
+  const monthKeyMap = new Map(); // 'YYYY-MM' → { label, records[] }
   list.forEach(r=>{
-    let key='Sin fecha';
-    if(r.fecha){ const d=new Date(r.fecha+'T12:00:00'); key=`${MONTHS_ES[d.getMonth()]} ${d.getFullYear()}`; }
-    if(!groups[key]) groups[key]=[];
-    groups[key].push(r);
+    let sortKey = 'sin-fecha';
+    let label   = 'Sin fecha';
+    if(r.fecha){
+      const d = new Date(r.fecha+'T12:00:00');
+      sortKey  = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      label    = `${MONTHS_ES[d.getMonth()]} ${d.getFullYear()}`;
+    }
+    if(!monthKeyMap.has(sortKey)) monthKeyMap.set(sortKey, { label, recs:[] });
+    monthKeyMap.get(sortKey).recs.push(r);
   });
-  Object.keys(groups).forEach(k=>groups[k].sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'','es')));
+
+  // Month groups always newest → oldest
+  const sortedMonthKeys = [...monthKeyMap.keys()].sort((a,b)=>b.localeCompare(a));
+
+  // Within each group apply the chosen sort
+  sortedMonthKeys.forEach(mk=>{
+    const recs = monthKeyMap.get(mk).recs;
+    if(_listSort==='az')      recs.sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'','es'));
+    else if(_listSort==='za') recs.sort((a,b)=>(b.nombre||'').localeCompare(a.nombre||'','es'));
+    else if(_listSort==='newest') recs.sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+    else if(_listSort==='oldest') recs.sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||''));
+  });
 
   let html = '';
   if(q) html = `<div class="results-banner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>${list.length} resultado${list.length!==1?'s':''} para "<em>${escHtml(q)}</em>"<button class="results-clr" onclick="document.getElementById('list-search').value='';renderList()">✕</button></div>`;
 
-  html += Object.keys(groups).map(key=>`
+  html += sortedMonthKeys.map(mk=>{
+    const { label, recs } = monthKeyMap.get(mk);
+    return `
     <div class="month-group">
       <div class="month-group-header">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span class="month-group-title">${key}</span>
-        <span class="month-group-count">${groups[key].length}</span>
-        <button class="view-month-btn" onclick="openMonthView('${escAttr(key)}')">Ver mes</button>
+        <span class="month-group-title">${label}</span>
+        <span class="month-group-count">${recs.length}</span>
+        <button class="view-month-btn" onclick="openMonthView('${escAttr(label)}')">Ver mes</button>
       </div>
-      ${groups[key].map(r=>recordCardHTML(r)).join('')}
-    </div>
-  `).join('');
+      ${recs.map(r=>recordCardHTML(r)).join('')}
+    </div>`;
+  }).join('');
   container.innerHTML = html;
 }
 
@@ -2475,6 +2525,7 @@ window.openTeamUser = function(userJsonStr){
 
   // Search input clear + list placeholder
   document.getElementById('viewer-search').value = '';
+  _vwSort = 'newest'; _setSortBtns('vw-sort-btn-','newest');
   renderViewerList('');
 
   // Navigate
@@ -2520,26 +2571,36 @@ function renderViewerList(q){
     return;
   }
 
-  // Group by month
-  const groups = {};
+  // Group by month using Map for stable order
+  const monthKeyMap = new Map();
   list.forEach(r=>{
-    let key='Sin fecha';
-    if(r.fecha){ const d=new Date(r.fecha+'T12:00:00'); key=`${MONTHS_ES[d.getMonth()]} ${d.getFullYear()}`; }
-    if(!groups[key]) groups[key]=[];
-    groups[key].push(r);
+    let sortKey='sin-fecha', label='Sin fecha';
+    if(r.fecha){ const d=new Date(r.fecha+'T12:00:00'); sortKey=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; label=`${MONTHS_ES[d.getMonth()]} ${d.getFullYear()}`; }
+    if(!monthKeyMap.has(sortKey)) monthKeyMap.set(sortKey,{label,recs:[]});
+    monthKeyMap.get(sortKey).recs.push(r);
   });
 
-  const MONTHS_SORT_ORDER = Object.keys(groups); // already in desc order from list sort
-  MONTHS_SORT_ORDER.forEach(key=>{
+  // Months always newest → oldest; within group respect _vwSort
+  const sortedKeys = [...monthKeyMap.keys()].sort((a,b)=>b.localeCompare(a));
+  sortedKeys.forEach(mk=>{
+    const recs = monthKeyMap.get(mk).recs;
+    if(_vwSort==='az')      recs.sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'','es'));
+    else if(_vwSort==='za') recs.sort((a,b)=>(b.nombre||'').localeCompare(a.nombre||'','es'));
+    else if(_vwSort==='newest') recs.sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''));
+    else if(_vwSort==='oldest') recs.sort((a,b)=>(a.fecha||'').localeCompare(b.fecha||''));
+  });
+
+  sortedKeys.forEach(mk=>{
+    const { label, recs } = monthKeyMap.get(mk);
     const groupDiv = document.createElement('div');
     groupDiv.className = 'month-group';
     groupDiv.innerHTML = `
       <div class="month-group-header">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span class="month-group-title">${key}</span>
-        <span class="month-group-count">${groups[key].length}</span>
+        <span class="month-group-title">${label}</span>
+        <span class="month-group-count">${recs.length}</span>
       </div>
-      ${groups[key].map(r=>viewerCardHTML(r)).join('')}`;
+      ${recs.map(r=>viewerCardHTML(r)).join('')}`;
     container.appendChild(groupDiv);
   });
 }
