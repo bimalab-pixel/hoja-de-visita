@@ -789,6 +789,31 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
 .viewer-meta{font-size:.73rem;color:rgba(255,255,255,.6);margin-top:2px}
 .viewer-count{font-size:.72rem;background:rgba(255,255,255,.15);color:#fff;padding:3px 10px;border-radius:16px;font-weight:700;flex-shrink:0}
 
+
+/* ══ ALERTAS — marcar seguimiento realizado ══ */
+.alert-card.done{
+  opacity:.55;border-color:var(--border);
+  background:var(--white);
+}
+.alert-card.done .alert-days{
+  color:var(--success);font-weight:700;font-size:.75rem;
+}
+.btn-mark-done{
+  flex-shrink:0;padding:.38rem .7rem;border-radius:8px;
+  border:1.5px solid var(--teal2);background:rgba(13,158,143,.08);
+  color:var(--teal);font-family:inherit;font-size:.72rem;font-weight:700;
+  cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.3rem;
+  white-space:nowrap;
+}
+.btn-mark-done svg{width:13px;height:13px;flex-shrink:0;}
+.btn-mark-done:hover{background:var(--teal);color:#fff;border-color:var(--teal);}
+.btn-mark-done.done-state{
+  background:rgba(26,122,74,.1);border-color:var(--success);
+  color:var(--success);cursor:default;
+}
+.alert-card-row{
+  display:flex;align-items:center;gap:.6rem;width:100%;
+}
 </style>
 </head>
 <body>
@@ -1248,7 +1273,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
             <textarea id="f-acuerdos" placeholder="Describa los acuerdos establecidos…" oninput="autoGrow(this)"></textarea>
             <div class="print-mirror" id="pm-acuerdos"></div>
           </div>
-          <div class="f-group"><label>6. Fecha de seguimiento</label><input type="date" id="f-seguimiento"/></div>
+          <div class="f-group">
+            <label>6. Fecha de seguimiento</label>
+            <input type="date" id="f-seguimiento"/>
+            <div style="margin-top:.45rem;display:flex;align-items:center;gap:.45rem">
+              <input type="checkbox" id="f-seguimiento-realizado" style="width:16px;height:16px;accent-color:var(--teal);cursor:pointer"/>
+              <label for="f-seguimiento-realizado" style="font-size:.78rem;color:var(--teal);font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0">
+                ✓ Seguimiento ya realizado
+              </label>
+            </div>
+          </div>
         </div>
 
         <!-- Firmas -->
@@ -1552,6 +1586,7 @@ function getAlerts(){
   const alerts = [];
   records.forEach(r=>{
     if(!r.seguimiento) return;
+    if(r.seguimientoRealizado) return;   // ← ya atendido, no mostrar
     const d = new Date(r.seguimiento+'T12:00:00'); d.setHours(0,0,0,0);
     const diff = Math.round((d - today)/(1000*60*60*24));
     if(diff <= 3) alerts.push({...r, _diff: diff});
@@ -1577,13 +1612,23 @@ function renderAlerts(){
     const isOver = r._diff < 0;
     const label = isOver ? `Vencido hace ${Math.abs(r._diff)} día${Math.abs(r._diff)!==1?'s':''}` : r._diff===0 ? 'Hoy es la fecha' : `En ${r._diff} día${r._diff!==1?'s':''}`;
     const dateStr = new Date(r.seguimiento+'T12:00:00').toLocaleDateString('es-SV',{day:'2-digit',month:'long',year:'numeric'});
-    return `<div class="alert-card ${isOver?'':'warn'}" onclick="openRecord('${r.id}')">
-      <div class="alert-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div>
-      <div class="alert-info">
-        <div class="alert-name">${escHtml(r.nombre||'—')} <span style="font-size:.7rem;color:var(--muted);font-weight:400">· Ficha ${String(r.num||0).padStart(3,'0')}</span></div>
-        <div class="alert-date">Seguimiento: ${dateStr}</div>
+    return `<div class="alert-card ${isOver?'':'warn'}" id="alert-card-${r.id}">
+      <div class="alert-card-row">
+        <div class="alert-icon" style="cursor:pointer" onclick="openRecord('${r.id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        </div>
+        <div class="alert-info" style="cursor:pointer;flex:1" onclick="openRecord('${r.id}')">
+          <div class="alert-name">${escHtml(r.nombre||'—')} <span style="font-size:.7rem;color:var(--muted);font-weight:400">· Ficha ${String(r.num||0).padStart(3,'0')}</span></div>
+          <div class="alert-date">Seguimiento: ${dateStr}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.35rem;flex-shrink:0">
+          <div class="alert-days">${label}</div>
+          <button class="btn-mark-done" onclick="marcarSeguimientoRealizado('${r.id}')" title="Marcar este seguimiento como realizado">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Realizado
+          </button>
+        </div>
       </div>
-      <div class="alert-days">${label}</div>
     </div>`;
   }).join('');
 }
@@ -1957,6 +2002,8 @@ function initNewForm(){
   ['f-ucsf','f-expediente','f-nombre','f-hora-fin','f-objetivo','f-hallazgos',
    'f-acciones','f-acuerdos','f-firma-usuario','f-firma-personal','f-seguimiento'].forEach(id=>setField(id,''));
   document.querySelectorAll('input[name="f-categoria"]').forEach(r=>r.checked=false);
+  const srElNew = document.getElementById('f-seguimiento-realizado');
+  if(srElNew) srElNew.checked = false;
   setCatDropdown('');
   setField('f-fecha', now.toISOString().split('T')[0]);
   setField('f-hora-inicio', now.toTimeString().slice(0,5));
@@ -1980,6 +2027,8 @@ function loadFormFromRecord(rec){
   Object.entries(map).forEach(([k,id])=>setField(id,rec[k]||''));
   // Cargar categoría
   setCatDropdown(rec.categoria||'');
+  const srEl = document.getElementById('f-seguimiento-realizado');
+  if(srEl) srEl.checked = !!rec.seguimientoRealizado;
   document.getElementById('form-correlativo').textContent = `Ficha N° ${String(rec.num||0).padStart(4,'0')}`;
   document.getElementById('btn-delete').style.display = 'flex';
   document.getElementById('btn-nueva-ficha').style.display = 'flex';
@@ -2021,7 +2070,9 @@ function saveRecord(){
     nombre, horaInicio: getField('f-hora-inicio'), horaFin: getField('f-hora-fin'),
     objetivo: getField('f-objetivo'), hallazgos: getField('f-hallazgos'),
     acciones: getField('f-acciones'), acuerdos: getField('f-acuerdos'),
-    seguimiento: getField('f-seguimiento'), firmaUsuario: getField('f-firma-usuario'),
+    seguimiento: getField('f-seguimiento'),
+    seguimientoRealizado: document.getElementById('f-seguimiento-realizado')?.checked || false,
+    firmaUsuario: getField('f-firma-usuario'),
     firmaPersonal: getField('f-firma-personal'), vitals: getVitals(),
     savedAt: new Date().toISOString()
   };
@@ -2205,6 +2256,34 @@ document.getElementById('f-firma-usuario').addEventListener('input', function(){
   const nombreVal = document.getElementById('f-nombre').value;
   this._manualEdit = (this.value !== nombreVal);
 });
+
+
+/* ════════════ MARCAR SEGUIMIENTO COMO REALIZADO ════════════
+   Guarda seguimientoRealizado=true en la ficha y la quita
+   de la lista de alertas sin necesidad de abrir el formulario.
+   El campo sigue visible en la ficha por si se quiere editar.
+════════════════════════════════════════════════════════════ */
+function marcarSeguimientoRealizado(id){
+  const idx = records.findIndex(r => r.id === id);
+  if(idx === -1) return;
+
+  // Animación de salida antes de quitar la tarjeta
+  const card = document.getElementById('alert-card-' + id);
+  if(card){
+    card.style.transition = 'opacity .4s, transform .4s';
+    card.style.opacity = '0';
+    card.style.transform = 'translateX(30px)';
+  }
+
+  records[idx].seguimientoRealizado = true;
+  saveRecords();
+  updateHomeStats();
+
+  setTimeout(()=>{
+    renderAlerts();
+    showToast('✓ Seguimiento marcado como realizado', 'success');
+  }, 380);
+}
 
 // Si ya está instalada como app, ocultar botón de instalación
 if(window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone){
