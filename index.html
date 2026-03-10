@@ -1078,9 +1078,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
       Pacientes
     </button>
     <div class="topbar-title" id="patient-detail-title">Paciente</div>
-    <button class="topbar-btn primary" onclick="goTo('screen-form','new')" title="Nueva visita">
+    <button class="topbar-btn primary" onclick="nuevaVisitaMismoPaciente()" title="Nueva visita para este paciente">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Nueva
+      Nueva visita
     </button>
   </div>
   <div class="scroller">
@@ -1142,6 +1142,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
       Volver
     </button>
     <div class="topbar-title" id="form-topbar-title">Nueva Visita</div>
+    <button class="topbar-btn" id="btn-nueva-topbar" onclick="nuevaVisitaDesdeFicha()" title="Nueva visita para este mismo paciente" style="display:none;background:var(--teal);color:#fff">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nueva
+    </button>
     <button class="topbar-btn primary" onclick="saveRecord()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:14px;height:14px"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
       Guardar
@@ -1276,6 +1280,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
         <button class="btn danger" id="btn-delete" onclick="deleteCurrentRecord()" style="display:none">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
           Eliminar
+        </button>
+        <button class="btn secondary" id="btn-nueva-ficha" onclick="nuevaVisitaDesdeFicha()" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nueva visita
         </button>
         <button class="btn secondary" onclick="goBack()" style="margin-left:auto">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="width:14px;height:14px"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -1955,8 +1963,14 @@ function initNewForm(){
   const nextNum = records.length>0 ? Math.max(...records.map(r=>r.num||0))+1 : 1;
   document.getElementById('form-correlativo').textContent = `Ficha N° ${String(nextNum).padStart(4,'0')}`;
   document.getElementById('btn-delete').style.display = 'none';
+  document.getElementById('btn-nueva-ficha').style.display = 'none';
+  document.getElementById('btn-nueva-topbar').style.display = 'none';
   vitalRowCount = 0; document.getElementById('vitals-body').innerHTML = '';
   addVitalRow(); addVitalRow();
+  // Auto-rellenar firma del personal desde el perfil guardado
+  const perfil = loadProfile();
+  const firmaPers = [perfil.nombre, perfil.cargo].filter(Boolean).join(' · ');
+  setField('f-firma-personal', firmaPers);
   syncAllMirrors();
 }
 
@@ -1968,6 +1982,8 @@ function loadFormFromRecord(rec){
   setCatDropdown(rec.categoria||'');
   document.getElementById('form-correlativo').textContent = `Ficha N° ${String(rec.num||0).padStart(4,'0')}`;
   document.getElementById('btn-delete').style.display = 'flex';
+  document.getElementById('btn-nueva-ficha').style.display = 'flex';
+  document.getElementById('btn-nueva-topbar').style.display = '';
   vitalRowCount = 0; document.getElementById('vitals-body').innerHTML = '';
   const vitals = rec.vitals||[];
   if(vitals.length===0){addVitalRow();addVitalRow();}else vitals.forEach(v=>addVitalRow(v));
@@ -2033,6 +2049,66 @@ function openRecord(id){
   goTo('screen-form','edit');
 }
 function openAndPrint(id){ openRecord(id); setTimeout(()=>printForm(), 500); }
+
+/* ════════════ NUEVA VISITA DESDE LA FICHA ABIERTA ════════════
+   Prelllena nombre, expediente, UCSF y categoría de la ficha
+   que se está consultando/editando actualmente.
+   Visible SOLO cuando hay una ficha abierta (modo edición).
+════════════════════════════════════════════════════════════════ */
+function nuevaVisitaDesdeFicha(){
+  // Capturar datos de la ficha actual ANTES de reiniciar el form
+  const nombre     = getField('f-nombre');
+  const expediente = getField('f-expediente');
+  const ucsf       = getField('f-ucsf');
+  const catEl      = document.querySelector('input[name="f-categoria"]:checked');
+  const categoria  = catEl ? catEl.value : '';
+
+  if(!nombre){
+    showToast('⚠ Esta ficha no tiene nombre de paciente.', 'error');
+    return;
+  }
+
+  initNewForm();
+
+  // Inyectar datos copiados
+  setField('f-nombre',     nombre);
+  setField('f-expediente', expediente);
+  setField('f-ucsf',       ucsf);
+  setCatDropdown(categoria);
+  // Auto-rellenar firma del usuario/paciente con el nombre
+  const firmaEl = document.getElementById('f-firma-usuario');
+  if(firmaEl){ firmaEl.value = nombre; firmaEl._manualEdit = false; }
+
+  document.getElementById('form-topbar-title').textContent = 'Nueva Visita';
+  showToast('✓ Nueva ficha para ' + nombre, 'success');
+}
+
+/* ════════════════ NUEVA VISITA — MISMO PACIENTE ════════════════
+   Crea una nueva ficha prellenando nombre, expediente, UCSF y
+   categoría tomados de la ficha más reciente del paciente actual.
+   Se llama desde "Nueva visita" en screen-patient-detail.
+══════════════════════════════════════════════════════════════════ */
+function nuevaVisitaMismoPaciente(){
+  const recs = _pdCurrentRecs || [];
+  const ref = recs.length > 0
+    ? [...recs].sort((a,b)=>(b.fecha||'').localeCompare(a.fecha||''))[0]
+    : null;
+
+  goTo('screen-form', 'new');
+
+  setTimeout(()=>{
+    if(ref){
+      setField('f-nombre',     ref.nombre     || '');
+      setField('f-expediente', ref.expediente || '');
+      setField('f-ucsf',       ref.ucsf       || '');
+      setCatDropdown(ref.categoria || '');
+      // Auto-rellenar firma del usuario/paciente con el nombre
+      const firmaEl2 = document.getElementById('f-firma-usuario');
+      if(firmaEl2){ firmaEl2.value = ref.nombre || ''; firmaEl2._manualEdit = false; }
+    }
+    document.getElementById('form-topbar-title').textContent = 'Nueva Visita';
+  }, 50);
+}
 
 function printForm(){ syncAllMirrors(); window.print(); }
 
@@ -2119,6 +2195,16 @@ function closeProfileModal(){
 loadRecords();
 updateHomeStats();
 applyProfile(loadProfile());
+
+// Sincronizar nombre del paciente con firma de usuario automáticamente
+document.getElementById('f-nombre').addEventListener('input', function(){
+  const firmaEl = document.getElementById('f-firma-usuario');
+  if(!firmaEl._manualEdit) firmaEl.value = this.value;
+});
+document.getElementById('f-firma-usuario').addEventListener('input', function(){
+  const nombreVal = document.getElementById('f-nombre').value;
+  this._manualEdit = (this.value !== nombreVal);
+});
 
 // Si ya está instalada como app, ocultar botón de instalación
 if(window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone){
