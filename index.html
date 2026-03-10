@@ -1969,9 +1969,12 @@ function recordCardHTML(r){
   const dateStr = r.fecha ? new Date(r.fecha+'T12:00:00').toLocaleDateString('es-SV',{day:'2-digit',month:'short',year:'numeric'}) : 'Sin fecha';
   const diff = getDiff(r.seguimiento);
   let tag='', cc='';
-  if(diff!==null){
+  if(diff!==null && !r.seguimientoRealizado){
     if(diff<0){tag=`<span class="record-tag overdue">⚠ Vencido ${Math.abs(diff)}d</span>`;cc='overdue';}
     else if(diff<=3){tag=`<span class="record-tag soon">🔔 En ${diff}d</span>`;cc='due-soon';}
+  }
+  if(r.seguimientoRealizado && r.seguimiento){
+    tag=`<span class="record-tag" style="background:rgba(26,122,74,.12);color:var(--success)">✓ Realizado</span>`;
   }
   const catIcon = r.categoria ? (CAT_ICONS[r.categoria]||'') + ' ' : '';
   const catTag = r.categoria ? `<span class="record-cat">${catIcon}${escHtml(r.categoria)}</span>` : '';
@@ -2276,6 +2279,7 @@ function marcarSeguimientoRealizado(id){
   }
 
   records[idx].seguimientoRealizado = true;
+  records[idx].savedAt = new Date().toISOString(); // garantiza que gana el merge con la nube
   saveRecords();
   updateHomeStats();
 
@@ -2371,8 +2375,12 @@ function mergeRecords(localArr, cloudArr){
       const tsLocal = r.savedAt ? new Date(r.savedAt).getTime() : 0;
       const tsCloud = existing.savedAt ? new Date(existing.savedAt).getTime() : 0;
       // Gana la más reciente
-      if(tsLocal > tsCloud) map.set(r.id, r);
-      // Si la nube es igual o más reciente, ya está en el map — no hacemos nada
+      let winner = (tsLocal > tsCloud) ? r : existing;
+      // seguimientoRealizado=true NUNCA retrocede: si cualquiera lo tiene, se conserva
+      if(r.seguimientoRealizado || existing.seguimientoRealizado){
+        winner = { ...winner, seguimientoRealizado: true };
+      }
+      map.set(r.id, winner);
     } else {
       // Ficha nueva que solo existe en local → la agregamos
       map.set(r.id, r);
