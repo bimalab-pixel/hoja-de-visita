@@ -4,7 +4,7 @@
    si cambias el index.html para forzar recarga.
 ═══════════════════════════════════════════════ */
 
-const CACHE_NAME = 'minsal-v1';
+const CACHE_NAME = 'minsal-v2';
 
 const ASSETS = [
   './',
@@ -21,6 +21,7 @@ const SKIP_CACHE = [
   'firebase.googleapis.com',
   'gstatic.com/firebasejs',
   'identitytoolkit',
+   'www.google.com/maps',
 ];
 
 /* ── Instalar: pre-cachear todo ── */
