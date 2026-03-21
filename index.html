@@ -421,6 +421,134 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
 }
 .sig-line::after{content:'Firma';position:absolute;bottom:4px;right:8px;font-size:.6rem;color:#c5cfe0;text-transform:uppercase;letter-spacing:.07em}
 
+/* ══ RECUADRO-BOTÓN DE FIRMA ══ */
+.sig-btn{
+  height:62px;border:1.5px dashed var(--border);border-radius:8px;
+  background:#f8fbff;
+  display:flex;align-items:center;justify-content:center;gap:.5rem;
+  cursor:pointer;transition:all .22s;position:relative;overflow:hidden;
+  -webkit-tap-highlight-color:transparent;
+}
+.sig-btn:active{background:var(--light2);border-color:var(--teal2);}
+.sig-btn .sig-btn-ico{color:#c5cfe0;flex-shrink:0;transition:color .2s;}
+.sig-btn .sig-btn-ico svg{width:18px;height:18px;}
+.sig-btn .sig-btn-lbl{font-size:.68rem;color:#c5cfe0;text-transform:uppercase;letter-spacing:.08em;font-weight:700;transition:color .2s;}
+.sig-btn img.sig-preview{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:contain;background:#fff;display:none;
+}
+.sig-btn.has-sig{border-style:solid;border-color:var(--teal2);background:#f0fdf9;}
+.sig-btn.has-sig .sig-btn-ico,.sig-btn.has-sig .sig-btn-lbl{display:none;}
+.sig-btn .sig-edit-hint{
+  position:absolute;bottom:3px;right:7px;
+  font-size:.55rem;color:var(--teal2);font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  display:none;
+}
+.sig-btn.has-sig .sig-edit-hint{display:block;}
+
+/* GPS chip inline */
+.sig-gps-chip{
+  display:none;align-items:center;gap:.45rem;
+  padding:.42rem .7rem;border-radius:8px;margin-bottom:.6rem;
+  border:1.5px solid var(--border);background:var(--light);
+  font-size:.7rem;font-weight:700;color:var(--muted);
+}
+.sig-gps-chip.ok{background:#eafaf4;border-color:#a3d9c2;color:#1a7a4a;}
+.sig-gps-chip svg{width:13px;height:13px;flex-shrink:0;}
+.sig-gps-chip a{margin-left:auto;font-size:.62rem;color:var(--teal);text-decoration:underline;white-space:nowrap;}
+.sig-gps-btn{
+  display:flex;align-items:center;gap:.4rem;padding:.38rem .85rem;
+  border-radius:7px;border:1.5px solid var(--teal2);
+  background:rgba(13,158,143,.07);color:var(--teal);
+  font-family:inherit;font-size:.75rem;font-weight:700;cursor:pointer;
+  margin-bottom:.7rem;transition:all .18s;
+}
+.sig-gps-btn:hover{background:rgba(13,158,143,.15);}
+.sig-gps-btn svg{width:14px;height:14px;}
+
+/* ══ PAD DE FIRMA (sheet) ══ */
+#sig-pad-bg{
+  position:fixed;inset:0;background:rgba(8,20,44,.82);
+  z-index:9900;display:none;align-items:flex-end;justify-content:center;
+}
+#sig-pad-bg.open{display:flex;}
+#sig-pad{
+  background:#fff;border-radius:22px 22px 0 0;
+  width:100%;max-width:540px;
+  display:flex;flex-direction:column;
+  box-shadow:0 -8px 40px rgba(8,20,44,.4);
+  animation:sigUp .28s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes sigUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+.sigpad-hdr{
+  flex-shrink:0;padding:.85rem 1.1rem .6rem;
+  border-bottom:1.5px solid var(--border);
+  display:flex;align-items:center;gap:.6rem;
+}
+.sigpad-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.sigpad-title{font-size:.95rem;font-weight:700;color:var(--navy);flex:1;}
+.sigpad-hint{font-size:.65rem;color:var(--muted);margin-top:1px;}
+.sigpad-cw{
+  position:relative;margin:.75rem 1rem;
+  border:1.5px solid var(--border);border-radius:10px;
+  background:#f8fbff;overflow:hidden;touch-action:none;cursor:crosshair;
+  height:220px;
+}
+.sigpad-cw canvas{display:block;width:100%;height:220px;}
+.sigpad-ph{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:.5rem;pointer-events:none;
+}
+.sigpad-ph svg{width:36px;height:36px;color:#d8e3ee;}
+.sigpad-ph span{font-size:.75rem;color:#d8e3ee;font-weight:600;letter-spacing:.04em;}
+.sigpad-actions{
+  display:flex;align-items:center;gap:.55rem;
+  padding:.5rem 1rem;border-top:1px solid var(--light2);
+}
+.sigpad-clr{
+  display:flex;align-items:center;gap:.3rem;padding:.42rem .85rem;
+  border-radius:8px;border:1.5px solid var(--border);background:#fff;
+  font-family:inherit;font-size:.78rem;font-weight:700;color:var(--muted);cursor:pointer;
+}
+.sigpad-clr svg{width:13px;height:13px;}
+.sigpad-clr:hover{background:var(--light2);}
+.sigpad-ok{
+  flex:1;padding:.72rem;border-radius:10px;border:none;cursor:pointer;
+  font-family:inherit;font-size:.88rem;font-weight:700;
+  background:linear-gradient(135deg,var(--navy2),var(--teal));color:#fff;
+  display:flex;align-items:center;justify-content:center;gap:.4rem;
+}
+.sigpad-ok:disabled{background:#c8d2dc;cursor:not-allowed;}
+.sigpad-cancel{
+  padding:.42rem .85rem;border-radius:8px;
+  border:1.5px solid var(--border);background:#fff;
+  font-family:inherit;font-size:.78rem;font-weight:600;color:var(--muted);cursor:pointer;
+}
+
+/* ══ CANVAS DE FIRMA EN PERFIL ══ */
+.profile-sig-wrap{
+  border:1.5px dashed var(--border);border-radius:8px;background:#f7fafd;
+  overflow:hidden;touch-action:none;cursor:crosshair;height:80px;position:relative;
+}
+.profile-sig-wrap canvas{display:block;width:100%;height:80px;}
+.profile-sig-ph{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:.3rem;pointer-events:none;
+}
+.profile-sig-ph svg{width:16px;height:16px;color:#c5cfe0;}
+.profile-sig-ph span{font-size:.62rem;color:#c5cfe0;text-transform:uppercase;letter-spacing:.06em;}
+.profile-sig-wrap.has-sig{border-color:var(--teal2);border-style:solid;}
+.psig-actions{display:flex;justify-content:flex-end;margin-top:3px;}
+.psig-clr{font-size:.67rem;color:var(--muted);background:none;border:1px solid var(--border);border-radius:5px;padding:.17rem .55rem;cursor:pointer;font-family:inherit;}
+
+@media print{
+  .sig-btn{border-style:solid!important;background:#fff!important;height:62px!important;}
+  .sig-btn img.sig-preview{display:block!important;}
+  .sig-btn-lbl,.sig-btn-ico,.sig-edit-hint{display:none!important;}
+  .sig-gps-btn,.sigpad-actions{display:none!important;}
+  .sig-gps-chip{display:flex!important;}
+}
+
 /* Form action bar */
 .form-actions{
   display:flex;flex-wrap:wrap;gap:.55rem;padding:.9rem 1.3rem;
@@ -1287,16 +1415,37 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
 
         <!-- Firmas -->
         <div class="fs-title">Firmas</div>
+        <!-- GPS -->
+        <div class="sig-gps-chip" id="sig-gps-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span id="sig-gps-txt"></span>
+          <a id="sig-gps-link" href="#" target="_blank" style="display:none">Ver mapa →</a>
+        </div>
+        <button type="button" class="sig-gps-btn" onclick="sigPedirGPS()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Registrar ubicación GPS
+        </button>
         <div class="sig-grid">
           <div class="sig-box">
             <label>Nombre del usuario / paciente</label>
             <input type="text" id="f-firma-usuario" placeholder="Nombre completo"/>
-            <div class="sig-line"></div>
+            <!-- Recuadro tappable — al tocar abre el pad de firma -->
+            <div class="sig-btn" id="sig-btn-pac" onclick="sigPadAbrir('pac')" title="Toca para firmar">
+              <div class="sig-btn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+              <span class="sig-btn-lbl">Toca para firmar</span>
+              <img id="sig-preview-pac" class="sig-preview" alt="firma paciente"/>
+              <span class="sig-edit-hint">Toca para editar</span>
+            </div>
           </div>
           <div class="sig-box">
             <label>Nombre y cargo del personal de salud</label>
             <input type="text" id="f-firma-personal" placeholder="Nombre y cargo"/>
-            <div class="sig-line"></div>
+            <div class="sig-btn" id="sig-btn-per" onclick="sigPadAbrir('per')" title="Toca para firmar">
+              <div class="sig-btn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+              <span class="sig-btn-lbl">Toca para firmar</span>
+              <img id="sig-preview-per" class="sig-preview" alt="firma personal"/>
+              <span class="sig-edit-hint">Toca para editar</span>
+            </div>
           </div>
         </div>
       </div><!-- /form-body -->
@@ -1349,6 +1498,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
         <label>UCSF / Unidad de salud</label>
         <input type="text" id="profile-ucsf" placeholder="Ej: UCSF San Marcos" maxlength="60"/>
       </div>
+      <div class="profile-field">
+        <label>Tu firma digital <span style="font-size:.6rem;color:var(--muted);font-weight:400">(se guarda en este dispositivo)</span></label>
+        <!-- Recuadro-botón: abre el pad grande -->
+        <div class="sig-btn" id="profile-sig-btn" onclick="profileSigAbrirPad()" title="Toca para dibujar tu firma">
+          <div class="sig-btn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+          <span class="sig-btn-lbl">Toca para dibujar tu firma</span>
+          <img id="profile-sig-preview" class="sig-preview" alt="tu firma"/>
+          <span class="sig-edit-hint">Toca para editar</span>
+        </div>
+        <div class="psig-actions">
+          <button class="psig-clr" onclick="profileSigBorrar()">✕ Borrar firma</button>
+        </div>
+      </div>
     </div>
     <button class="profile-save-btn" onclick="saveProfile()">
       ✓ Guardar perfil en este dispositivo
@@ -1358,6 +1520,38 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
     </button>
   </div>
 </div>
+
+<!-- ════ PAD DE FIRMA (sheet) ════ -->
+<div id="sig-pad-bg">
+  <div id="sig-pad">
+    <div class="sigpad-hdr">
+      <div class="sigpad-dot" id="sigpad-dot"></div>
+      <div style="flex:1;min-width:0">
+        <div class="sigpad-title" id="sigpad-title">Firma</div>
+        <div class="sigpad-hint" id="sigpad-hint">Dibuja tu firma en el recuadro</div>
+      </div>
+      <button class="sigpad-cancel" onclick="sigPadCerrar()">Cancelar</button>
+    </div>
+    <div class="sigpad-cw" id="sigpad-cw">
+      <canvas id="sigpad-canvas"></canvas>
+      <div class="sigpad-ph" id="sigpad-ph">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        <span>Firma aquí</span>
+      </div>
+    </div>
+    <div class="sigpad-actions">
+      <button class="sigpad-clr" onclick="sigPadLimpiar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="width:13px;height:13px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+        Borrar
+      </button>
+      <button class="sigpad-ok" id="sigpad-ok" onclick="sigPadAceptar()" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" style="width:16px;height:16px"><polyline points="20 6 9 17 4 12"/></svg>
+        Usar esta firma
+      </button>
+    </div>
+  </div>
+</div>
+<!-- ════ FIN PAD ════ -->
 
 <!-- Modal de confirmación general -->
 <div class="modal-bg" id="modal-bg">
@@ -2022,13 +2216,25 @@ function initNewForm(){
   const firmaPers = [perfil.nombre, perfil.cargo].filter(Boolean).join(' · ');
   setField('f-firma-personal', firmaPers);
   syncAllMirrors();
+  // Limpiar firmas
+  window._sigData = { pac: null, per: null };
+  window._sigGPS  = null;
+  var gpsChipInit = document.getElementById('sig-gps-chip');
+  if(gpsChipInit) gpsChipInit.style.display = 'none';
+  setTimeout(()=>{
+    sigMostrarPreview('pac', null);
+    // Pre-cargar firma del personal del perfil
+    var sigPer = localStorage.getItem('sig_personal_v1');
+    if(sigPer){ window._sigData.per = sigPer; sigMostrarPreview('per', sigPer); }
+    else sigMostrarPreview('per', null);
+    sigMostrarGPS(null);
+  }, 60);
 }
 
 function loadFormFromRecord(rec){
   editingId = rec.id;
   const map = {ucsf:'f-ucsf',fecha:'f-fecha',expediente:'f-expediente',nombre:'f-nombre',horaInicio:'f-hora-inicio',horaFin:'f-hora-fin',objetivo:'f-objetivo',hallazgos:'f-hallazgos',acciones:'f-acciones',acuerdos:'f-acuerdos',seguimiento:'f-seguimiento',firmaUsuario:'f-firma-usuario',firmaPersonal:'f-firma-personal'};
   Object.entries(map).forEach(([k,id])=>setField(id,rec[k]||''));
-  // Cargar categoría
   setCatDropdown(rec.categoria||'');
   const srEl = document.getElementById('f-seguimiento-realizado');
   if(srEl) srEl.checked = !!rec.seguimientoRealizado;
@@ -2040,6 +2246,20 @@ function loadFormFromRecord(rec){
   const vitals = rec.vitals||[];
   if(vitals.length===0){addVitalRow();addVitalRow();}else vitals.forEach(v=>addVitalRow(v));
   syncAllMirrors();
+  // Restaurar firmas y GPS
+  window._sigData = { pac: rec.firmaCanvasPac||null, per: rec.firmaCanvasPer||null };
+  window._sigGPS  = rec.visitaGPS||null;
+  // Ocultar GPS chip hasta que se restaure
+  var gpsChipRec = document.getElementById('sig-gps-chip');
+  if(gpsChipRec) gpsChipRec.style.display = 'none';
+  setTimeout(()=>{
+    sigMostrarPreview('pac', rec.firmaCanvasPac||null);
+    // Para fichas antiguas sin firma del personal, pre-cargar del perfil
+    var perSig = rec.firmaCanvasPer || localStorage.getItem('sig_personal_v1') || null;
+    if(perSig) window._sigData.per = perSig;
+    sigMostrarPreview('per', perSig);
+    sigMostrarGPS(rec.visitaGPS||null);
+  }, 60);
 }
 
 function setField(id,val){ const el=document.getElementById(id); if(el) el.value=val||''; }
@@ -2077,6 +2297,9 @@ function saveRecord(){
     seguimientoRealizado: document.getElementById('f-seguimiento-realizado')?.checked || false,
     firmaUsuario: getField('f-firma-usuario'),
     firmaPersonal: getField('f-firma-personal'), vitals: getVitals(),
+    firmaCanvasPac: window._sigData && window._sigData.pac || null,
+    firmaCanvasPer: window._sigData && window._sigData.per || null,
+    visitaGPS: window._sigGPS || null,
     savedAt: new Date().toISOString()
   };
   if(editingId){ const idx=records.findIndex(r=>r.id===editingId); if(idx>-1) records[idx]=rec; }
@@ -2135,6 +2358,8 @@ function nuevaVisitaDesdeFicha(){
 
   document.getElementById('form-topbar-title').textContent = 'Nueva Visita';
   showToast('✓ Nueva ficha para ' + nombre, 'success');
+  // Pre-cargar firma del paciente de visita anterior
+  setTimeout(()=>{ sigPrecargarFirmaPaciente(nombre); }, 120);
 }
 
 /* ════════════════ NUEVA VISITA — MISMO PACIENTE ════════════════
@@ -2159,6 +2384,13 @@ function nuevaVisitaMismoPaciente(){
       // Auto-rellenar firma del usuario/paciente con el nombre
       const firmaEl2 = document.getElementById('f-firma-usuario');
       if(firmaEl2){ firmaEl2.value = ref.nombre || ''; firmaEl2._manualEdit = false; }
+      // Pre-cargar firma del paciente directamente de la ficha más reciente
+      if(ref.firmaCanvasPac){
+        window._sigData.pac = ref.firmaCanvasPac;
+        sigMostrarPreview('pac', ref.firmaCanvasPac);
+      } else {
+        sigPrecargarFirmaPaciente(ref.nombre || '');
+      }
     }
     document.getElementById('form-topbar-title').textContent = 'Nueva Visita';
   }, 50);
@@ -2217,6 +2449,9 @@ function saveProfile(){
   if(!nombre){ showToast('⚠ Ingresa tu nombre para continuar.','error'); return; }
   const profile = { nombre, cargo, ucsf };
   localStorage.setItem(LS_PROFILE, JSON.stringify(profile));
+  // La firma del personal ya se guardó en localStorage cuando se aceptó en el pad
+  // (ver profileSigAbrirPad → sigPadAceptar → 'per' key)
+  // No hay que hacer nada extra aquí.
   applyProfile(profile);
   closeProfileModal();
   showToast('✓ Perfil guardado en este dispositivo','success');
@@ -2239,7 +2474,12 @@ function openProfileModal(){
   document.getElementById('profile-cargo').value  = p.cargo||'';
   document.getElementById('profile-ucsf').value   = p.ucsf||'';
   document.getElementById('profile-modal-bg').classList.add('show');
-  setTimeout(()=>document.getElementById('profile-nombre').focus(),100);
+  setTimeout(()=>{
+    document.getElementById('profile-nombre').focus();
+    // Cargar preview de firma guardada en el recuadro del perfil
+    const saved = localStorage.getItem('sig_personal_v1');
+    profileSigMostrarPreview(saved || null);
+  }, 100);
 }
 function closeProfileModal(){
   document.getElementById('profile-modal-bg').classList.remove('show');
@@ -2251,9 +2491,15 @@ updateHomeStats();
 applyProfile(loadProfile());
 
 // Sincronizar nombre del paciente con firma de usuario automáticamente
+// y buscar firma previa del paciente cuando se termina de escribir el nombre
 document.getElementById('f-nombre').addEventListener('input', function(){
   const firmaEl = document.getElementById('f-firma-usuario');
   if(!firmaEl._manualEdit) firmaEl.value = this.value;
+});
+// Buscar firma del paciente al perder foco en el campo nombre
+document.getElementById('f-nombre').addEventListener('blur', function(){
+  var nombre = (this.value||'').trim();
+  if(nombre && !window._sigData.pac) sigPrecargarFirmaPaciente(nombre);
 });
 document.getElementById('f-firma-usuario').addEventListener('input', function(){
   const nombreVal = document.getElementById('f-nombre').value;
@@ -2899,6 +3145,267 @@ window.addEventListener('cloud-data-loaded', function(e){
   <!-- Profile header inserted here dynamically -->
   <div class="scroller" id="viewer-container"></div>
 </div>
+
+
+<script>
+/* ════════════════════════════════════════════════════════
+   SISTEMA DE FIRMAS  — visita_domiciliar
+   Flujo: al tocar recuadro → pad grande → aceptar → preview
+   + Canvas en perfil para firma permanente del personal
+════════════════════════════════════════════════════════ */
+
+/* ── Estado global ── */
+window._sigData = { pac: null, per: null };  // dataUrl por clave
+window._sigGPS  = null;
+var _sigPadKey   = null;   // 'pac' o 'per' — cuál está activo
+var _sigPadCtx   = null;
+var _sigPadDone  = false;
+var _sigPadDraw  = false;
+
+/* ─────────────────────────────
+   PAD DE FIRMA  (sigPad*)
+───────────────────────────── */
+function sigPadAbrir(key) {
+  _sigPadKey  = key;
+  _sigPadDone = false;
+  _sigPadDraw = false;
+
+  // Colores según quién firma
+  var isPac = (key === 'pac');
+  var dot   = document.getElementById('sigpad-dot');
+  var title = document.getElementById('sigpad-title');
+  var hint  = document.getElementById('sigpad-hint');
+  if(dot)   dot.style.background   = isPac ? 'var(--teal2)' : 'var(--navy2)';
+  if(title) title.textContent      = isPac ? 'Firma del paciente / responsable' : 'Firma del personal de salud';
+  if(hint)  hint.textContent       = isPac ? 'El paciente dibuja su firma aquí' : 'Dibuja tu firma aquí';
+
+  document.getElementById('sig-pad-bg').classList.add('open');
+
+  setTimeout(function() {
+    _sigPadInicCanvas();
+
+    // Pre-cargar firma existente si la hay
+    var existing = window._sigData[key];
+    // Para paciente: buscar firma de visita anterior al mismo nombre
+    if(!existing && key === 'pac') {
+      var nombre = (document.getElementById('f-nombre') || {}).value || '';
+      var ant = (records || []).filter(function(r){
+        return r.firmaCanvasPac &&
+               (r.nombre||'').trim().toLowerCase() === nombre.trim().toLowerCase();
+      }).sort(function(a,b){ return (b.fecha||'').localeCompare(a.fecha||''); })[0];
+      if(ant) existing = ant.firmaCanvasPac;
+    }
+    // Para personal: buscar en localStorage si no hay en _sigData
+    if(!existing && key === 'per') {
+      existing = localStorage.getItem('sig_personal_v1') || null;
+    }
+    if(existing) _sigPadCargar(existing);
+  }, 80);
+}
+
+function _sigPadInicCanvas() {
+  var canvas = document.getElementById('sigpad-canvas');
+  var cw     = document.getElementById('sigpad-cw');
+  if(!canvas) return;
+  var dpr = window.devicePixelRatio || 1;
+  var W   = cw ? cw.clientWidth : (canvas.offsetWidth || 460);
+  var H   = 220;
+  canvas.width  = Math.round(W * dpr);
+  canvas.height = Math.round(H * dpr);
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  var ctx = canvas.getContext('2d');
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(dpr, dpr);
+  ctx.strokeStyle = '#0d2448';
+  ctx.lineWidth   = 2.5;
+  ctx.lineCap     = 'round';
+  ctx.lineJoin    = 'round';
+  _sigPadCtx  = ctx;
+  _sigPadDone = false;
+  _sigPadDraw = false;
+
+  // Reset visual
+  var ph  = document.getElementById('sigpad-ph');
+  var btn = document.getElementById('sigpad-ok');
+  if(ph)  ph.style.display = '';
+  if(btn) btn.disabled = true;
+
+  function pt(cx, cy) {
+    var r = canvas.getBoundingClientRect();
+    return { x: cx - r.left, y: cy - r.top };
+  }
+  function markDone() {
+    if(_sigPadDone) return;
+    _sigPadDone = true;
+    if(ph)  ph.style.display = 'none';
+    if(btn) btn.disabled = false;
+  }
+  canvas.ontouchstart = function(e){ e.preventDefault(); _sigPadDraw=true; var t=e.touches[0],p=pt(t.clientX,t.clientY); ctx.beginPath(); ctx.moveTo(p.x,p.y); };
+  canvas.ontouchmove  = function(e){ e.preventDefault(); if(!_sigPadDraw)return; var t=e.touches[0],p=pt(t.clientX,t.clientY); ctx.lineTo(p.x,p.y); ctx.stroke(); markDone(); };
+  canvas.ontouchend   = function(){ _sigPadDraw=false; };
+  canvas.onmousedown  = function(e){ _sigPadDraw=true; var p=pt(e.clientX,e.clientY); ctx.beginPath(); ctx.moveTo(p.x,p.y); };
+  canvas.onmousemove  = function(e){ if(!_sigPadDraw)return; var p=pt(e.clientX,e.clientY); ctx.lineTo(p.x,p.y); ctx.stroke(); markDone(); };
+  canvas.onmouseup    = function(){ _sigPadDraw=false; };
+  canvas.onmouseleave = function(){ _sigPadDraw=false; };
+}
+
+function _sigPadCargar(dataUrl) {
+  var canvas = document.getElementById('sigpad-canvas');
+  if(!canvas || !_sigPadCtx) return;
+  var img = new Image();
+  img.onload = function(){
+    var dpr = window.devicePixelRatio||1;
+    _sigPadCtx.clearRect(0,0,canvas.width/dpr,canvas.height/dpr);
+    _sigPadCtx.drawImage(img,0,0,canvas.width/dpr,canvas.height/dpr);
+    _sigPadDone = true;
+    var ph  = document.getElementById('sigpad-ph');
+    var btn = document.getElementById('sigpad-ok');
+    if(ph)  ph.style.display = 'none';
+    if(btn) btn.disabled = false;
+  };
+  img.src = dataUrl;
+}
+
+function sigPadLimpiar() {
+  var canvas = document.getElementById('sigpad-canvas');
+  if(!canvas || !_sigPadCtx) return;
+  var dpr = window.devicePixelRatio||1;
+  _sigPadCtx.clearRect(0,0,canvas.width/dpr,canvas.height/dpr);
+  _sigPadDone = false;
+  _sigPadDraw = false;
+  var ph  = document.getElementById('sigpad-ph');
+  var btn = document.getElementById('sigpad-ok');
+  if(ph)  ph.style.display = '';
+  if(btn) btn.disabled = true;
+}
+
+function sigPadAceptar() {
+  if(!_sigPadDone || !_sigPadKey) return;
+  var canvas = document.getElementById('sigpad-canvas');
+  if(!canvas) return;
+  var dataUrl = canvas.toDataURL('image/png');
+  window._sigData[_sigPadKey] = dataUrl;
+  sigMostrarPreview(_sigPadKey, dataUrl);
+  // Si es la firma del personal, guardar en perfil y actualizar recuadro del perfil
+  if(_sigPadKey === 'per') {
+    localStorage.setItem('sig_personal_v1', dataUrl);
+    profileSigMostrarPreview(dataUrl);  // actualiza recuadro en modal de perfil si está abierto
+  }
+  _profileSigMode = false;
+  sigPadCerrar();
+}
+
+function sigPadCerrar() {
+  document.getElementById('sig-pad-bg').classList.remove('open');
+  _sigPadKey = null;
+}
+
+/* ── Mostrar preview en recuadro ── */
+function sigMostrarPreview(key, dataUrl) {
+  var btn  = document.getElementById('sig-btn-' + key);
+  var prev = document.getElementById('sig-preview-' + key);
+  if(!btn || !prev) return;
+  if(dataUrl){
+    prev.src = dataUrl;
+    prev.style.display = 'block';
+    btn.classList.add('has-sig');
+  } else {
+    prev.src = '';
+    prev.style.display = 'none';
+    btn.classList.remove('has-sig');
+  }
+}
+
+/* ─────────────────────────────
+   BUSCAR FIRMA PREVIA DEL PACIENTE
+───────────────────────────── */
+function sigPrecargarFirmaPaciente(nombre) {
+  if(!nombre) return;
+  var nombreNorm = nombre.trim().toLowerCase();
+  var ant = (records || []).filter(function(r){
+    return r.firmaCanvasPac &&
+           (r.nombre||'').trim().toLowerCase() === nombreNorm;
+  }).sort(function(a,b){ return (b.fecha||'').localeCompare(a.fecha||''); })[0];
+  if(ant && ant.firmaCanvasPac){
+    window._sigData.pac = ant.firmaCanvasPac;
+    sigMostrarPreview('pac', ant.firmaCanvasPac);
+  }
+}
+
+/* ─────────────────────────────
+   GPS
+───────────────────────────── */
+function sigPedirGPS() {
+  var chip = document.getElementById('sig-gps-chip');
+  var txt  = document.getElementById('sig-gps-txt');
+  var link = document.getElementById('sig-gps-link');
+  if(chip){ chip.style.display='flex'; chip.className='sig-gps-chip'; }
+  if(txt)  txt.textContent = 'Obteniendo GPS…';
+  if(link) link.style.display = 'none';
+  window._sigGPS = null;
+  if(!navigator.geolocation){
+    if(txt) txt.textContent = 'GPS no disponible.';
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    function(pos){
+      var lat=pos.coords.latitude.toFixed(6),lng=pos.coords.longitude.toFixed(6),acc=Math.round(pos.coords.accuracy);
+      window._sigGPS = {lat:lat,lng:lng,accuracy:acc,ts:new Date().toISOString()};
+      if(chip) chip.className='sig-gps-chip ok';
+      if(txt)  txt.textContent='📍 '+lat+', '+lng+' (±'+acc+'m)';
+      if(link){ link.href='https://www.google.com/maps?q='+lat+','+lng; link.style.display=''; }
+    },
+    function(err){
+      var m={1:'GPS denegado.',2:'Sin señal.',3:'Tiempo agotado.'};
+      if(txt) txt.textContent=m[err.code]||'Error GPS.';
+    },
+    {enableHighAccuracy:true,timeout:12000,maximumAge:0}
+  );
+}
+
+function sigMostrarGPS(gps) {
+  var chip=document.getElementById('sig-gps-chip');
+  var txt=document.getElementById('sig-gps-txt');
+  var link=document.getElementById('sig-gps-link');
+  if(!gps){ if(chip) chip.style.display='none'; return; }
+  if(chip){ chip.style.display='flex'; chip.className='sig-gps-chip ok'; }
+  if(txt) txt.textContent='📍 '+gps.lat+', '+gps.lng+' (±'+gps.accuracy+'m)';
+  if(link){ link.href='https://www.google.com/maps?q='+gps.lat+','+gps.lng; link.style.display=''; }
+}
+
+/* ─────────────────────────────
+   CANVAS EN MODAL DE PERFIL
+───────────────────────────── */
+/* Firma del perfil — usa el mismo pad grande con key especial 'per' */
+function profileSigAbrirPad() {
+  // Abrir el pad grande en modo 'per' (personal de salud)
+  // Al aceptar, sigPadAceptar guardará en localStorage y actualizará el preview del perfil
+  _profileSigMode = true;  // flag para que el pad actualice también el recuadro del perfil
+  sigPadAbrir('per');
+}
+function profileSigMostrarPreview(dataUrl) {
+  var btn  = document.getElementById('profile-sig-btn');
+  var prev = document.getElementById('profile-sig-preview');
+  if(!btn || !prev) return;
+  if(dataUrl) {
+    prev.src = dataUrl;
+    prev.style.display = 'block';
+    btn.classList.add('has-sig');
+  } else {
+    prev.src = '';
+    prev.style.display = 'none';
+    btn.classList.remove('has-sig');
+  }
+}
+function profileSigBorrar() {
+  localStorage.removeItem('sig_personal_v1');
+  window._sigData.per = null;
+  profileSigMostrarPreview(null);
+  sigMostrarPreview('per', null);
+}
+var _profileSigMode = false;
+</script>
 
 </body>
 </html>
