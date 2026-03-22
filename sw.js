@@ -4,7 +4,7 @@
    si cambias el index.html para forzar recarga.
 ═══════════════════════════════════════════════ */
 
-const CACHE_NAME = 'minsal-v2';
+const CACHE_NAME = 'minsal-v3';
 
 const ASSETS = [
   './',
