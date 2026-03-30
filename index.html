@@ -970,6 +970,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--light);color:var(--text);
     <div class="home-title">Hoja de Visita Domiciliar</div>
     <div class="home-subtitle">Sistema de Registro · MINSAL</div>
     <div class="home-org">Viceministerio de Servicios de Salud · El Salvador</div>
+    <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;margin-top:.8rem;background:rgba(255,255,255,0.15);color:#fff;text-decoration:none;font-size:.8rem;font-weight:700;padding:6px 16px;border-radius:20px;border:1px solid rgba(255,255,255,0.3);transition:background .2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+      ← Menú Principal
+    </a>
   </div>
 
   <div class="home-scroller">
@@ -2450,7 +2453,7 @@ function saveProfile(){
   const profile = { nombre, cargo, ucsf };
   localStorage.setItem(LS_PROFILE, JSON.stringify(profile));
   // La firma del personal ya se guardó en localStorage cuando se aceptó en el pad
-  // También la guardamos en la nube para que esté disponible en otros dispositivos
+  // También la sincronizamos a la nube si hay conexión
   const _sigUrl = localStorage.getItem('sig_personal_v1');
   if(_sigUrl && typeof window._syncSigPersonalToCloud === 'function'){
     window._syncSigPersonalToCloud(_sigUrl);
@@ -2555,7 +2558,7 @@ if(window.matchMedia('(display-mode: standalone)').matches || window.navigator.s
 <script type="module">
 import { initializeApp }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, collection, getDocs }
+import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, getDocs }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -2716,13 +2719,13 @@ window.confirmUpload = function(){
         // Incluir firma del personal para que esté disponible en otros dispositivos
         const sigPersonalUrl = localStorage.getItem('sig_personal_v1') || null;
         await setDoc(doc(db, 'usuarios', key), {
-          records:         merged,
-          nombre:          profile.nombre,
-          cargo:           profile.cargo  || '',
-          ucsf:            profile.ucsf   || '',
-          sigPersonal:     sigPersonalUrl,
-          updatedAt:       new Date().toISOString(),
-          count:           merged.length
+          records:     merged,
+          nombre:      profile.nombre,
+          cargo:       profile.cargo  || '',
+          ucsf:        profile.ucsf   || '',
+          sigPersonal: sigPersonalUrl,
+          updatedAt:   new Date().toISOString(),
+          count:       merged.length
         });
 
         // Paso 4: actualizar localStorage con el resultado combinado
@@ -2812,18 +2815,18 @@ window.confirmDownload = function(){
 
         // Guardar resultado combinado en el dispositivo
         localStorage.setItem('minsal_visitas_v5', JSON.stringify(merged));
-        // Restaurar firma del perfil si viene de la nube y no hay una local
+        // Restaurar firma del personal si viene de la nube y no hay una local
         if(data.sigPersonal){
           const localSig = localStorage.getItem('sig_personal_v1');
           if(!localSig){
-            // Primer dispositivo: cargar la firma de la nube
+            // Dispositivo nuevo: instalar la firma de la nube
             localStorage.setItem('sig_personal_v1', data.sigPersonal);
           }
           // Mostrar en el recuadro del perfil si está abierto
           if(typeof profileSigMostrarPreview === 'function'){
             profileSigMostrarPreview(data.sigPersonal);
           }
-          // Pre-cargar en _sigData para el formulario activo
+          // Pre-cargar en formulario activo si no hay firma del personal aún
           if(window._sigData && !window._sigData.per){
             window._sigData.per = data.sigPersonal;
             if(typeof sigMostrarPreview === 'function') sigMostrarPreview('per', data.sigPersonal);
@@ -2851,23 +2854,23 @@ window.confirmDownload = function(){
 
 /* ══════════════════════════════════════
    SYNC FIRMA DEL PERSONAL A LA NUBE
-   Actualiza solo el campo sigPersonal en el
-   documento del usuario sin tocar las fichas.
+   Actualiza solo sigPersonal en el documento
+   del usuario. Seguro offline: revisa navigator.onLine.
 ══════════════════════════════════════ */
 window._syncSigPersonalToCloud = async function(sigUrl){
-  // Sin red: no intentar nada, la firma se subirá en el próximo "Subir"
+  // Sin red: salir silenciosamente — se subirá en el próximo "Subir"
   if(!navigator.onLine) return;
   const profile = window.loadProfile ? window.loadProfile() : {};
   if(!profile.nombre || !sigUrl) return;
   const key = userKey(profile.nombre);
   try{
-    // updateDoc ya está importado en este módulo ES6 — no usar import() dinámico
+    // updateDoc ya importado en este módulo — no usar import() dinámico
     await updateDoc(doc(db,'usuarios',key),{ sigPersonal: sigUrl });
     console.log('[Firma] Firma del personal sincronizada a la nube ✓');
   } catch(e){
-    // Silencioso: sin conexión, documento inexistente o error de red
-    // La firma siempre se guarda local y viajará en el próximo "Subir"
-    console.log('[Firma] Sync diferido (se subirá con el próximo Subir):', e.message);
+    // Silencioso: documento inexistente, sin red o error transitorio
+    // La firma siempre queda en localStorage y viajará con el próximo "Subir"
+    console.log('[Firma] Sync diferido:', e.message);
   }
 };
 
@@ -3336,7 +3339,7 @@ function sigPadAceptar() {
   if(_sigPadKey === 'per') {
     localStorage.setItem('sig_personal_v1', dataUrl);
     profileSigMostrarPreview(dataUrl);  // actualiza recuadro en modal de perfil si está abierto
-    // Sync inmediato a la nube para que otros dispositivos la tengan disponible
+    // Sync inmediato a la nube (solo si hay conexión)
     if(typeof window._syncSigPersonalToCloud === 'function'){
       window._syncSigPersonalToCloud(dataUrl);
     }
