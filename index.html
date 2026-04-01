@@ -769,6 +769,9 @@
 
           /* Textareas → usar mirror div para mostrar todo el contenido */
           .f-group textarea{display:none!important}
+          /* Inputs de texto/fecha/hora y firma → ocultar, mostrar mirror */
+          #f-ucsf,#f-expediente,#f-nombre,#f-fecha,#f-hora-inicio,#f-hora-fin,
+          #f-firma-usuario,#f-firma-personal,#f-seguimiento{display:none!important}
           .print-mirror{
             display:block!important;
             font-size:.88rem!important;
@@ -793,7 +796,7 @@
           /* Firmas */
           .sig-grid{grid-template-columns:1fr 1fr!important;gap:1rem!important}
           .sig-box label{font-size:.68rem!important}
-          .sig-box input{font-size:.88rem!important}
+          .sig-box input{font-size:.88rem!important;display:none!important}
           .sig-line{height:44px!important}
 
           /* ── Ocultar banner PWA en impresión ── */
@@ -1344,12 +1347,12 @@
                 <!-- Datos generales -->
                 <div class="fs-title">Datos generales</div>
                 <div class="fg c3">
-                    <div class="f-group"><label>UCSF</label><input type="text" id="f-ucsf" placeholder="Unidad de salud"/></div>
-                    <div class="f-group"><label>Fecha</label><input type="date" id="f-fecha"/></div>
-                    <div class="f-group"><label>Expediente Clínico N°</label><input type="text" id="f-expediente" placeholder="Número"/></div>
-                    <div class="f-group sp"><label>Nombre de la persona o familia</label><input type="text" id="f-nombre" placeholder="Nombre completo"/></div>
-                    <div class="f-group"><label>Hora de inicio</label><input type="time" id="f-hora-inicio"/></div>
-                    <div class="f-group"><label>Hora de finalización</label><input type="time" id="f-hora-fin"/></div>
+                    <div class="f-group"><label>Unidad de Salud</label><input type="text" id="f-ucsf" placeholder="Unidad de salud"/><div class="print-mirror" id="pm-ucsf"></div></div>
+                    <div class="f-group"><label>Fecha</label><input type="date" id="f-fecha"/><div class="print-mirror" id="pm-fecha"></div></div>
+                    <div class="f-group"><label>Expediente Clínico N°</label><input type="text" id="f-expediente" placeholder="Número"/><div class="print-mirror" id="pm-expediente"></div></div>
+                    <div class="f-group sp"><label>Nombre de la persona o familia</label><input type="text" id="f-nombre" placeholder="Nombre completo"/><div class="print-mirror" id="pm-nombre"></div></div>
+                    <div class="f-group"><label>Hora de inicio</label><input type="time" id="f-hora-inicio"/><div class="print-mirror" id="pm-hora-inicio"></div></div>
+                    <div class="f-group"><label>Hora de finalización</label><input type="time" id="f-hora-fin"/><div class="print-mirror" id="pm-hora-fin"></div></div>
                 </div>
 
                 <!-- 1. Objetivo -->
@@ -1400,6 +1403,7 @@
                     <div class="f-group">
                         <label>6. Fecha de seguimiento</label>
                         <input type="date" id="f-seguimiento"/>
+                        <div class="print-mirror" id="pm-seguimiento"></div>
                         <div style="margin-top:.45rem;display:flex;align-items:center;gap:.45rem">
                             <input type="checkbox" id="f-seguimiento-realizado" style="width:16px;height:16px;accent-color:var(--teal);cursor:pointer"/>
                             <label for="f-seguimiento-realizado" style="font-size:.78rem;color:var(--teal);font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0">
@@ -1425,6 +1429,7 @@
                     <div class="sig-box">
                         <label>Nombre del usuario / paciente</label>
                         <input type="text" id="f-firma-usuario" placeholder="Nombre completo"/>
+                        <div class="print-mirror" id="pm-firma-usuario"></div>
                         <!-- Recuadro tappable — al tocar abre el pad de firma -->
                         <div class="sig-btn" id="sig-btn-pac" onclick="sigPadAbrir('pac')" title="Toca para firmar">
                             <div class="sig-btn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
@@ -1436,6 +1441,7 @@
                     <div class="sig-box">
                         <label>Nombre y cargo del personal de salud</label>
                         <input type="text" id="f-firma-personal" placeholder="Nombre y cargo"/>
+                        <div class="print-mirror" id="pm-firma-personal"></div>
                         <div class="sig-btn" id="sig-btn-per" onclick="sigPadAbrir('per')" title="Toca para firmar">
                             <div class="sig-btn-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
                             <span class="sig-btn-lbl">Toca para firmar</span>
@@ -1491,8 +1497,8 @@
                 <input type="text" id="profile-cargo" placeholder="Ej: Enfermera, Médico general…" maxlength="60"/>
             </div>
             <div class="profile-field">
-                <label>UCSF / Unidad de salud</label>
-                <input type="text" id="profile-ucsf" placeholder="Ej: UCSF San Marcos" maxlength="60"/>
+                <label>UDS / Unidad de salud</label>
+                <input type="text" id="profile-ucsf" placeholder="Ej: UDS San Marcos" maxlength="60"/>
             </div>
             <div class="profile-field">
                 <label>Tu firma digital <span style="font-size:.6rem;color:var(--muted);font-weight:400">(se guarda en este dispositivo)</span></label>
@@ -1703,11 +1709,40 @@
       if(mirror) mirror.textContent = el.value;
     }
     function syncAllMirrors(){
+      // Textareas
       [['f-objetivo','pm-objetivo'],['f-hallazgos','pm-hallazgos'],['f-acciones','pm-acciones'],['f-acuerdos','pm-acuerdos']].forEach(([tid,mid])=>{
         const t = document.getElementById(tid);
         const m = document.getElementById(mid);
         if(t && m){ m.textContent = t.value; autoGrow(t); }
       });
+      // Inputs de texto — Datos generales y firmas
+      [['f-ucsf','pm-ucsf'],['f-expediente','pm-expediente'],['f-nombre','pm-nombre'],
+       ['f-hora-inicio','pm-hora-inicio'],['f-hora-fin','pm-hora-fin'],
+       ['f-firma-usuario','pm-firma-usuario'],['f-firma-personal','pm-firma-personal']].forEach(([iid,mid])=>{
+        const inp = document.getElementById(iid);
+        const m   = document.getElementById(mid);
+        if(inp && m) m.textContent = inp.value || '';
+      });
+      // Fecha — formatear como dd/mm/yyyy
+      (function(){
+        const inp = document.getElementById('f-fecha');
+        const m   = document.getElementById('pm-fecha');
+        if(inp && m){
+          const v = inp.value;
+          if(v){ const p=v.split('-'); m.textContent = p[2]+'/'+p[1]+'/'+p[0]; }
+          else m.textContent = '';
+        }
+      })();
+      // Fecha de seguimiento — formatear como dd/mm/yyyy
+      (function(){
+        const inp = document.getElementById('f-seguimiento');
+        const m   = document.getElementById('pm-seguimiento');
+        if(inp && m){
+          const v = inp.value;
+          if(v){ const p=v.split('-'); m.textContent = p[2]+'/'+p[1]+'/'+p[0]; }
+          else m.textContent = '';
+        }
+      })();
     }
 
     /* ════════════════ CATEGORÍA DROPDOWN ════════════════ */
